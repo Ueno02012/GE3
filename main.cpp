@@ -19,6 +19,14 @@
 #include"Resource.h"
 #include<fstream>
 #include<sstream>
+
+#define DIRECTINPUT_VERSION     0x0800 //DirectInputのバージョン指定
+#include <dinput.h>
+#pragma comment(lib,"dinput8.lib")
+#pragma comment(lib,"dxguid.lib")
+
+#include "Input.h"
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 #pragma comment(lib,"dxguid.lib")
 #pragma comment(lib,"d3d12.lib")
@@ -457,6 +465,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   //COMの初期化
   CoInitializeEx(0, COINIT_MULTITHREADED);
 
+
+  
+
   WNDCLASS wc{};
   //ウィンドウプロシージャ
   wc.lpfnWndProc = WindowProc;
@@ -493,6 +504,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
   //ウィンドウを表示する
   ShowWindow(hwnd, SW_SHOW);
+
+
+  // ポインタ
+  Input* input = nullptr;
+
+  // 入力の初期化
+  input = new Input();
+  input->Initialize(wc.hInstance, hwnd);
 
   //デバックレイヤー
 #ifdef _DEBUG
@@ -734,7 +753,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   directionalLightResource->Map(0, nullptr, reinterpret_cast<void**>(&directionalLightDate));
   // デフォルト値はとりあえず以下のようにして置く
   directionalLightDate->color = { 1.0f, 1.0f, 1.0f, 1.0f };
-  directionalLightDate->direction = { 0.0f,-1.0f,0.0f };
+  directionalLightDate->direction = { 0.0f,-1.0f,0.5f };
   directionalLightDate->intensity = 1.0f;
 
   /*-------------------------------------------------------*/
@@ -1293,6 +1312,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
   CloseHandle(fenceEvent);
   CloseWindow(hwnd);
+  
 
   return 0;
 }
