@@ -1132,9 +1132,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     else {
       // ゲームの処理
 
-      // 入力の更新
+      //===========================================================//
+      //========================= 入力の更新 ========================//
+      //===========================================================//
+
       input->Update();
 
+      //========================================//
+      //================ ImGui =================//
+      //========================================// 
+      
       ImGui_ImplDX12_NewFrame();
       ImGui_ImplWin32_NewFrame();
       ImGui::NewFrame();
@@ -1315,7 +1322,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
   CloseHandle(fenceEvent);
   CloseWindow(hwnd);
-  
+  delete input;
 
   return 0;
 }

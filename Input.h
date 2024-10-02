@@ -29,8 +29,6 @@ public: // メンバ変数
   void Update();
 
 private:
-  // DirectInputキーボードデバイスを保持するメンバ変数
-  //Microsoft::WRL::ComPtr<IDirectInputDevice8> keyboardDevice;
 
   // キーボードのデバイス
   Microsoft::WRL::ComPtr<IDirectInputDevice8> keyboard;
