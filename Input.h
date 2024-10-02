@@ -3,14 +3,21 @@
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <d3d12sdklayers.h>
+
+#define DIRECTINPUT_VERSION     0x0800 //DirectInputのバージョン指定
 #include<dinput.h>
+#include <wrl.h>
 #include <wrl/client.h>
 #include<assert.h>
 
 class Input
 {
-public: // メンバ変数
+public:
+  // namespace省略
+  template<class T>using ComPtr = Microsoft::WRL::ComPtr<T>;
 
+
+public: // メンバ変数
   /// <summary>
   /// 初期化
   /// </summary>
@@ -23,7 +30,10 @@ public: // メンバ変数
 
 private:
   // DirectInputキーボードデバイスを保持するメンバ変数
-  Microsoft::WRL::ComPtr<IDirectInputDevice8> m_keyboardDevice;
+  //Microsoft::WRL::ComPtr<IDirectInputDevice8> keyboardDevice;
+
+  // キーボードのデバイス
+  Microsoft::WRL::ComPtr<IDirectInputDevice8> keyboard;
 
 };
 
