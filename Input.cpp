@@ -9,16 +9,15 @@ void Input::Initialize(HINSTANCE hInstance, HWND hwnd)
   assert(SUCCEEDED(result));
 
   // キーボードデバイスの生成
-  ComPtr<IDirectInputDevice8> keyboardDevice = nullptr;
-  result = directInput->CreateDevice(GUID_SysKeyboard, keyboardDevice.GetAddressOf(), nullptr);
+  result = directInput->CreateDevice(GUID_SysKeyboard, keyboard.GetAddressOf(), nullptr);
   assert(SUCCEEDED(result));
 
   // 入力データ形式のセット
-  result = keyboardDevice->SetDataFormat(&c_dfDIKeyboard);
+  result = keyboard->SetDataFormat(&c_dfDIKeyboard);
   assert(SUCCEEDED(result));
 
   // 排他制御レベルの設定
-  result = keyboardDevice->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+  result = keyboard->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
   assert(SUCCEEDED(result));
 
 
@@ -30,6 +29,15 @@ void Input::Update()
   keyboard->Acquire();
 
   // 全キーの入力情報を取得する
-  BYTE key[256] = {};
   keyboard->GetDeviceState(sizeof(key), key);
+}
+
+bool Input::PushKey(BYTE keyNumber)
+{
+  //指定キーを押していればtrueを返す
+  if (key[keyNumber]){
+    return true;
+  }
+  // そうでなければfalseを返す
+  return false;
 }

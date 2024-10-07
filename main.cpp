@@ -1144,6 +1144,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
       input->Update();
 
+      if (input->PushKey(DIK_A))
+      {
+        transform.translate.x -= 0.1f;
+      }
+
+
       //========================================//
       //================ ImGui =================//
       //========================================// 
