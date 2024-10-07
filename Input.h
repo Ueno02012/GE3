@@ -35,12 +35,25 @@ public: // メンバ変数
   /// <returns></returns>
   bool PushKey(BYTE keyNumber);
 
+  /// <summary>
+  /// キーのトリガーをチェック
+  /// </summary>
+  /// <param name="keyNumber"></param>
+  /// <returns></returns>
+  bool TriggerKey(BYTE keyNumber);
+
 private:
 
   // キーボードのデバイス
   ComPtr<IDirectInputDevice8> keyboard;
 
+  // DirectInputのインスタンス
+  ComPtr<IDirectInput8> directInput;
+
   // 全キーの状態
   BYTE key[256] = {};
+  // 前回の全キーの状態
+  BYTE keyPre[256] = {};
+
 };
 
