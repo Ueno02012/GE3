@@ -9,16 +9,15 @@ void Input::Initialize(HINSTANCE hInstance, HWND hwnd)
   assert(SUCCEEDED(result));
 
   // キーボードデバイスの生成
-  ComPtr<IDirectInputDevice8> keyboardDevice = nullptr;
-  result = directInput->CreateDevice(GUID_SysKeyboard, keyboardDevice.GetAddressOf(), nullptr);
+  result = directInput->CreateDevice(GUID_SysKeyboard, keyboard.GetAddressOf(), nullptr);
   assert(SUCCEEDED(result));
 
   // 入力データ形式のセット
-  result = keyboardDevice->SetDataFormat(&c_dfDIKeyboard);
+  result = keyboard->SetDataFormat(&c_dfDIKeyboard);
   assert(SUCCEEDED(result));
 
   // 排他制御レベルの設定
-  result = keyboardDevice->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+  result = keyboard->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
   assert(SUCCEEDED(result));
 
 
