@@ -32,6 +32,4 @@ void Input::Update()
   // 全キーの入力情報を取得する
   BYTE key[256] = {};
   keyboard->GetDeviceState(sizeof(key), key);
-
-
 }
