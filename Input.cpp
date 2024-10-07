@@ -4,12 +4,12 @@
 void Input::Initialize(HINSTANCE hInstance, HWND hwnd)
 {
   // DirectInputのインスタンス生成
-  Microsoft::WRL::ComPtr<IDirectInput8> directInput = nullptr;
+  ComPtr<IDirectInput8> directInput = nullptr;
   HRESULT result = DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&directInput, nullptr);
   assert(SUCCEEDED(result));
 
   // キーボードデバイスの生成
-  Microsoft::WRL::ComPtr<IDirectInputDevice8> keyboardDevice = nullptr;
+  ComPtr<IDirectInputDevice8> keyboardDevice = nullptr;
   result = directInput->CreateDevice(GUID_SysKeyboard, keyboardDevice.GetAddressOf(), nullptr);
   assert(SUCCEEDED(result));
 

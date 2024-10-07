@@ -1121,8 +1121,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
   bool useMonsterBall = true;
 
-  MSG msg{};
+
+
+ //==================================================//
+//================ ゲームループ ======================//
+//==================================================//
+
   // ウィンドウの×ボタンが押されるまでループ
+  MSG msg{};
   while (msg.message != WM_QUIT) {
     // Windowにメッセージが来ていたら最優先で処理させる
     if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -1147,7 +1153,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
       ImGui::NewFrame();
 
       // 開発用UIの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に置き換える
-      ImGui::ShowDemoWindow();
+      //ImGui::ShowDemoWindow();
 
       ImGui::Begin("Sprite");
       ImGui::DragFloat3("translate", &transform.translate.x, 0.01f);

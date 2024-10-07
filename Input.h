@@ -31,7 +31,7 @@ public: // メンバ変数
 private:
 
   // キーボードのデバイス
-  Microsoft::WRL::ComPtr<IDirectInputDevice8> keyboard;
+  ComPtr<IDirectInputDevice8> keyboard;
 
 };
 
