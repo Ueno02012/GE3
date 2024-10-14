@@ -20,12 +20,6 @@
 #include<sstream>
 
 #include "WinApp.h"
-
-#define DIRECTINPUT_VERSION     0x0800 //DirectInputのバージョン指定
-#include <dinput.h>
-#pragma comment(lib,"dinput8.lib")
-#pragma comment(lib,"dxguid.lib")
-
 #include "Input.h"
 
 //extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
