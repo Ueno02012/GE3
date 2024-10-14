@@ -16,10 +16,6 @@ public:// メンバ変数
   /// </summary>
   void Initialize();
 
-  /// <summary>
-  /// 更新
-  /// </summary>
-  void Update();
 
   /// <summary>
 /// 終了
@@ -30,6 +26,10 @@ public:// メンバ変数
   // getter
   HWND GetHwnd() const { return hwnd; }
   HINSTANCE GetHInstance() const { return wc.hInstance; }
+
+  // メッセージの処理
+  bool ProcessMessage();
+
 
 public:// 定数
 
