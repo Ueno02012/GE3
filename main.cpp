@@ -18,15 +18,9 @@
 #include<fstream>
 #include<sstream>
 
+#define DIRECTINPUT_VERSION     0x0800 //DirectInputのバージョン指定
 #include "Input.h"
 #include "WinApp.h"
-
-#define DIRECTINPUT_VERSION     0x0800 //DirectInputのバージョン指定
-#pragma comment(lib,"dinput8.lib")
-#pragma comment(lib,"dxguid.lib")
-
-
-//extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
 #pragma comment(lib,"dxcompiler.lib")
