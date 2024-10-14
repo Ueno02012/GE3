@@ -73,24 +73,6 @@ struct ModelDate {
   MaterialDate material;
 };
 
-////ウィンドウプロージャー
-//LRESULT CALLBACK WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-//  //メッセージ二応じてゲーム固有の処理を行う
-//
-//  if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam)) {
-//    return true;
-//  }
-//
-//  switch (msg) {
-//    //ウィンドウが破棄された
-//  case WM_DESTROY:
-//    //OSに対して、アプリの終了を伝える
-//    PostQuitMessage(0);
-//    return 0;
-//  }
-//  //標準のメッセージ処理を行う
-//  return DefWindowProc(hWnd, msg, wParam, lParam);
-//}
 
 void Log(const std::string& message) {
   OutputDebugStringA(message.c_str());;
@@ -256,10 +238,6 @@ void UploadTextureData(Microsoft::WRL::ComPtr <ID3D12Resource>& texture, const D
 bool DepthFunc(float currZ, float prevZ) {
   return currZ <= prevZ;
 }
-
-//bool DepthFunc(float currZ, float prevZ) {
-//    return currZ >= prevZ;
-//}
 
 
 /*------------------------------------------------------------------------------------*/
@@ -514,7 +492,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
   // 入力の初期化
   input = new Input();
-  input->Initialize(winApp->GetHInstance(), winApp->GetHwnd());
+  input->Initialize(winApp);
 
   //デバックレイヤー
 #ifdef _DEBUG
@@ -1336,8 +1314,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     }
   }
 
-  ///COMの終了
-  CoUninitialize();
+  // windowsAPIの終了処理
+  winApp->Finalize();
 
   // ImGuiの終了処理。
   ImGui_ImplDX12_Shutdown();
@@ -1345,7 +1323,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   ImGui::DestroyContext();
 
   CloseHandle(fenceEvent);
-  CloseWindow(winApp->GetHwnd());
   delete input;
 
   // WindowsAPI解放

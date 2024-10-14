@@ -1,10 +1,14 @@
 #include "Input.h"
 
 
-void Input::Initialize(HINSTANCE hInstance, HWND hwnd)
+void Input::Initialize(WinApp* winApp)
 {
+
+  // 借りてきたWinAppのインスタンスを記録
+  this->winApp = winApp;
+
   // DirectInputのインスタンス生成
-  HRESULT result = DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&directInput, nullptr);
+  HRESULT result = DirectInput8Create(winApp->GetHInstance(), DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&directInput, nullptr);
   assert(SUCCEEDED(result));
 
   // キーボードデバイスの生成
@@ -16,7 +20,7 @@ void Input::Initialize(HINSTANCE hInstance, HWND hwnd)
   assert(SUCCEEDED(result));
 
   // 排他制御レベルの設定
-  result = keyboard->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+  result = keyboard->SetCooperativeLevel(winApp->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
   assert(SUCCEEDED(result));
 
 
@@ -33,6 +37,7 @@ void Input::Update()
   // 全キーの入力情報を取得する
   keyboard->GetDeviceState(sizeof(key), key);
 }
+
 
 bool Input::PushKey(BYTE keyNumber)
 {

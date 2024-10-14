@@ -21,6 +21,12 @@ public:// メンバ変数
   /// </summary>
   void Update();
 
+  /// <summary>
+/// 終了
+/// </summary>
+  void Finalize();
+
+
   // getter
   HWND GetHwnd() const { return hwnd; }
   HINSTANCE GetHInstance() const { return wc.hInstance; }

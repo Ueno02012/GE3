@@ -66,3 +66,11 @@ void WinApp::Update()
 {
 
 }
+
+void WinApp::Finalize()
+{
+  CloseWindow(hwnd);
+  ///COMの終了
+  CoUninitialize();
+
+}

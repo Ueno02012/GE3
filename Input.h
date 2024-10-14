@@ -1,5 +1,6 @@
 #pragma once
 #include <Windows.h>
+#include"WinApp.h"
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <d3d12sdklayers.h>
@@ -21,12 +22,13 @@ public: // メンバ変数
   /// <summary>
   /// 初期化
   /// </summary>
-  void  Initialize(HINSTANCE hInstance, HWND hwnd);
+  void  Initialize(WinApp* winApp);
 
   /// <summary>
   /// 更新
   /// </summary>
   void Update();
+
 
   /// <summary>
   /// キーの入力をチェック
@@ -54,6 +56,10 @@ private:
   BYTE key[256] = {};
   // 前回の全キーの状態
   BYTE keyPre[256] = {};
+
+
+  // WindowsAPI
+  WinApp* winApp = nullptr;
 
 };
 
