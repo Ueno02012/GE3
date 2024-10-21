@@ -1,9 +1,12 @@
 #include<cstdint>
 #include<string>
 #include<format>
+
 #include<d3d12.h>
 #include<dxgi1_6.h>
+
 #include<cassert>
+
 #include<dxgidebug.h>
 #include<dxcapi.h>
 #include<cmath>
@@ -21,8 +24,11 @@
 #define DIRECTINPUT_VERSION     0x0800 //DirectInputのバージョン指定
 #include "Input.h"
 #include "WinApp.h"
+#include "DirectXCommon.h"
+
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
+
 #pragma comment(lib,"dxcompiler.lib")
 
 
@@ -68,9 +74,9 @@ struct ModelDate {
 };
 
 
-void Log(const std::string& message) {
-  OutputDebugStringA(message.c_str());;
-}
+//void Log(const std::string& message) {
+//  OutputDebugStringA(message.c_str());;
+//}
 
 std::wstring ConvertString(const std::string& str) {
   if (str.empty()) {
@@ -433,20 +439,23 @@ ModelDate LoadObjFile(const std::string& directoryPath, const std::string& filen
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   OutputDebugStringA("Hello,Directx!\n");
 
-  // ポインタ
+  // WindowsAPIのポインタ
   WinApp* winApp = nullptr;
-
   // WindowsAPIの初期化
   winApp = new WinApp();
   winApp->Initialize();
-  
 
-  // ポインタ
+  // 入力のポインタ
   Input* input = nullptr;
-
   // 入力の初期化
   input = new Input();
   input->Initialize(winApp);
+
+  // DirectXCommonのポインタ
+  DirectXCommon* dxCommon = nullptr;
+  // DirectXの初期化
+  dxCommon = new DirectXCommon();
+  dxCommon->Initialize();
 
   //デバックレイヤー
 #ifdef _DEBUG
@@ -1280,6 +1289,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
   // WindowsAPI解放
   delete winApp;
+
+  // DirectX解放
+  delete dxCommon;
 
   return 0;
 }
