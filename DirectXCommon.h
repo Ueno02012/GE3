@@ -2,6 +2,7 @@
 #include<d3d12.h>
 #include<dxgi1_6.h>
 #include <d3d12sdklayers.h>
+#include<dxcapi.h>
 #include<cassert>
 #include"WinApp.h"
 #include"Logger.h"
@@ -21,7 +22,19 @@ public: // メンバ関数
   void Initialize(WinApp* winApp);
 
 
+
+  /// <summary>
+/// SRVの指定番号のCPUデスクリプタハンドルを取得する
+/// </summary>
+  D3D12_CPU_DESCRIPTOR_HANDLE GetSRVCPUDescriptorHandle(uint32_t index);
+
+  /// <summary>
+  /// SRVの指定番号のGPUデスクリプタハンドルを取得する
+  /// </summary>
+  //D3D12_GPU_DESCRIPTOR_HANDLE GetSRVGPUDescriptorHandle(uint32_t index);
+
 private:
+  HRESULT hr;
 
 /// <summary>
 /// 深度バッファの生成
@@ -36,24 +49,28 @@ private:
   void RenderTerggetInitialize();
 
   /// <summary>
-  /// 指定番号のCPUデスクリプタハンドルを取得する
-  /// </summary>
-  static D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(uint32_t index);
-
+/// 指定番号のCPUデスクリプタハンドルを取得する
+/// </summary>
+  static D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& descriptorHeap, uint32_t descriptorSize, uint32_t index);
   /// <summary>
-  /// 指定番号のGPUデスクリプタハンドルを取得する
-  /// </summary>
-  /// <param name="descriptorHeap"></param>
-  /// <param name="descriptorSize"></param>
-  /// <param name="index"></param>
-  /// <returns></returns>
-  static D3D12_CPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& descriptorHeap, uint32_t descriptorSize, uint32_t index);
+/// 指定番号のGPUデスクリプタハンドルを取得する
+/// </summary>
+  static D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& descriptorHeap, uint32_t descriptorSize, uint32_t index);
+
+
+  // RTV用のヒープでディスクリプタの数は2。RTVはshader内で触るものではないので、ShaderVisibleはfalse
+  Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> rtvDescriptorHeap = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
+  // SRV用のヒープでディスクリプタの数は128.RTVはshader内で触るものなので、ShaderVisibleはtrue
+  Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> srvDescriptorHeap = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
+  // DSV用のヒープでディスクリプタの数は1。DSVはshader内で触るものではないので、ShaderVisibleはfalse
+  Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> dsvDescriptorHeap = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
 
 
   // swapChain
   Microsoft::WRL::ComPtr <IDXGISwapChain4> swapChain = nullptr;
 
-  HRESULT hr;
+  // スワップチェーンリソース
+  std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, 2> swapChainResources;
 
   //デバックレイヤー
   Microsoft::WRL::ComPtr <ID3D12Debug1> debugController = nullptr;
@@ -76,6 +93,7 @@ private:
   //実際に頂点リソースを作る
   Microsoft::WRL::ComPtr<ID3D12Resource> resource = nullptr;
   Microsoft::WRL::ComPtr <ID3D12Device> device = nullptr;
+
   /// <summary>
   /// DescriptorHeapの生成
   /// </summary>
@@ -84,5 +102,11 @@ private:
   /// <param name="shaderVisible"></param>
   /// <returns></returns>
   Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible);
+
+  static uint32_t descriptorsizeSRV;
+  static uint32_t descriptorsizeRTV;
+  static uint32_t descriptorsizeDSV;
+  Microsoft::WRL::ComPtr <IDxcUtils> dxcUtils = nullptr;
+
 };
 

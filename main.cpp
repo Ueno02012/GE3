@@ -880,13 +880,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   HANDLE fenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
   assert(fenceEvent != nullptr);
 
-  // dxCompilerを初期化
-  Microsoft::WRL::ComPtr <IDxcUtils> dxcUtils = nullptr;
-  Microsoft::WRL::ComPtr <IDxcCompiler3> dxcCompiler = nullptr;
-  hr = DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxcUtils));
-  assert(SUCCEEDED(hr));
-  hr = DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&dxcCompiler));
-  assert(SUCCEEDED(hr));
+  //// dxCompilerを初期化
+  //Microsoft::WRL::ComPtr <IDxcUtils> dxcUtils = nullptr;
+  //Microsoft::WRL::ComPtr <IDxcCompiler3> dxcCompiler = nullptr;
+  //hr = DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxcUtils));
+  //assert(SUCCEEDED(hr));
+  //hr = DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&dxcCompiler));
+  //assert(SUCCEEDED(hr));
 
   /*-------------------------------------------------------------------------------*/
   /*----------------------------各Descriptorの設定----------------------------------*/
