@@ -27,10 +27,33 @@ private:
 /// 深度バッファの生成
 /// </summary>
   void CreateDepthBuffer();
+
   /// <summary>
   /// 各種DescriptorHeapの生成
   /// </summary>
   void CreateDescriptorHeap();
+
+  void RenderTerggetInitialize();
+
+  /// <summary>
+  /// 指定番号のCPUデスクリプタハンドルを取得する
+  /// </summary>
+  static D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(uint32_t index);
+
+  /// <summary>
+  /// 指定番号のGPUデスクリプタハンドルを取得する
+  /// </summary>
+  /// <param name="descriptorHeap"></param>
+  /// <param name="descriptorSize"></param>
+  /// <param name="index"></param>
+  /// <returns></returns>
+  static D3D12_CPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& descriptorHeap, uint32_t descriptorSize, uint32_t index);
+
+
+  // swapChain
+  Microsoft::WRL::ComPtr <IDXGISwapChain4> swapChain = nullptr;
+
+  HRESULT hr;
 
   //デバックレイヤー
   Microsoft::WRL::ComPtr <ID3D12Debug1> debugController = nullptr;

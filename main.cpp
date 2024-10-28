@@ -850,17 +850,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   /*---------------------------DescriptorHeap-----------------------------------*/
   /*----------------------------------------------------------------------------*/
 
-  // RTV用のヒープでディスクリプタの数は2。RTVはshader内で触るものではないので、ShaderVisibleはfalse
-  Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> rtvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
-  // SRV用のヒープでディスクリプタの数は128.RTVはshader内で触るものなので、ShaderVisibleはtrue
-  Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> srvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
-  // DSV用のヒープでディスクリプタの数は1。DSVはshader内で触るものではないので、ShaderVisibleはfalse
-  Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> dsvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
+  //// RTV用のヒープでディスクリプタの数は2。RTVはshader内で触るものではないので、ShaderVisibleはfalse
+  //Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> rtvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
+  //// SRV用のヒープでディスクリプタの数は128.RTVはshader内で触るものなので、ShaderVisibleはtrue
+  //Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> srvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
+  //// DSV用のヒープでディスクリプタの数は1。DSVはshader内で触るものではないので、ShaderVisibleはfalse
+  //Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> dsvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
 
   // DescriptorSizeを取得する
-  const uint32_t descriptorsizeSRV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-  const uint32_t descriptorsizeRTV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-  const uint32_t descriptorsizeDSV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+  //const uint32_t descriptorsizeSRV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+  //const uint32_t descriptorsizeRTV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+  //const uint32_t descriptorsizeDSV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 
   //SwapChainからResourceを引っ張ってくる
   Microsoft::WRL::ComPtr <ID3D12Resource> swapChainResources[2] = { nullptr };
@@ -897,26 +897,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   /*--------------------------RTVの設定--------------------------*/
   /*------------------------------------------------------------*/
 
-   //RTVの設定
-  D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
-  rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;//出力結果をSRGB2変換して書き込む
-  rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;//2Dテクスチャとして読み込む
-  //ディスクリプタの先頭を取得する
-  D3D12_CPU_DESCRIPTOR_HANDLE rtvStartHandle = GetCPUDescriptorHandle(rtvDescriptorHeap, descriptorsizeRTV, 0);
-  //RTVを2つ作るのでディスクリプタを2つ用意
-  D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[2];
-  //まず1つ目を作る。1つ目は最初のところに作る。作る場所をこちらで指定してあげる必要がある
-  rtvHandles[0] = rtvStartHandle;
-  device->CreateRenderTargetView(swapChainResources[0].Get(), &rtvDesc, rtvHandles[0]);
-  //2つ目のディスクリプタハンドルを得る
-  rtvHandles[1].ptr = rtvHandles[0].ptr + device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-  //2つ目を作る
-  device->CreateRenderTargetView(swapChainResources[1].Get(), &rtvDesc, rtvHandles[1]);
+  // //RTVの設定
+  //D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
+  //rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;//出力結果をSRGB2変換して書き込む
+  //rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;//2Dテクスチャとして読み込む
+  ////ディスクリプタの先頭を取得する
+  //D3D12_CPU_DESCRIPTOR_HANDLE rtvStartHandle = GetCPUDescriptorHandle(rtvDescriptorHeap, descriptorsizeRTV, 0);
+  ////RTVを2つ作るのでディスクリプタを2つ用意
+  //D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[2];
+  ////まず1つ目を作る。1つ目は最初のところに作る。作る場所をこちらで指定してあげる必要がある
+  //rtvHandles[0] = rtvStartHandle;
+  //device->CreateRenderTargetView(swapChainResources[0].Get(), &rtvDesc, rtvHandles[0]);
+  ////2つ目のディスクリプタハンドルを得る
+  //rtvHandles[1].ptr = rtvHandles[0].ptr + device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+  ////2つ目を作る
+  //device->CreateRenderTargetView(swapChainResources[1].Get(), &rtvDesc, rtvHandles[1]);
 
-  //現時点でincludeはしないが、includeに対応するための設定を行っていく
-  Microsoft::WRL::ComPtr <IDxcIncludeHandler> includeHandler = nullptr;
-  hr = dxcUtils->CreateDefaultIncludeHandler(&includeHandler);
-  assert(SUCCEEDED(hr));
+  ////現時点でincludeはしないが、includeに対応するための設定を行っていく
+  //Microsoft::WRL::ComPtr <IDxcIncludeHandler> includeHandler = nullptr;
+  //hr = dxcUtils->CreateDefaultIncludeHandler(&includeHandler);
+  //assert(SUCCEEDED(hr));
 
   /*------------------------------------------------------------*/
   /*--------------------------SRVの設定--------------------------*/
