@@ -46,7 +46,17 @@ private:
   /// </summary>
   void CreateDescriptorHeap();
 
+  /// <summary>
+  /// レンダーターゲットの初期化
+  /// </summary>
   void RenderTerggetInitialize();
+
+  /// <summary>
+  /// 深度ステンシルビューの初期化
+  /// </summary>
+  void DSVInitialize();
+
+  void FenceInitialize();
 
   /// <summary>
 /// 指定番号のCPUデスクリプタハンドルを取得する
@@ -107,6 +117,8 @@ private:
   static uint32_t descriptorsizeRTV;
   static uint32_t descriptorsizeDSV;
   Microsoft::WRL::ComPtr <IDxcUtils> dxcUtils = nullptr;
+
+  Microsoft::WRL::ComPtr <ID3D12Fence> fence = nullptr;
 
 };
 

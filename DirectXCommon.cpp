@@ -204,4 +204,42 @@ void DirectXCommon::RenderTerggetInitialize()
 
 }
 
+void DirectXCommon::DSVInitialize()
+{
+  /*------------------------------------------------------------*/
+/*--------------------------DSVの設定--------------------------*/
+/*------------------------------------------------------------*/
+
+// DepthStencilTextureをウインドウのサイズで作成
+ Microsoft::WRL::ComPtr <ID3D12Resource> depthStencilResource = CreateDepthStencilTextureResource(device, WinApp::kClientWidth, WinApp::kClientHeight);
+
+  // DSVの設定
+  D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
+  dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;//Format。基本的にはResource合わせる
+  dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D; //2dTexture 
+  // DSVDescの先頭にDSVを作る
+  device->CreateDepthStencilView(depthStencilResource.Get(), &dsvDesc, dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+
+  // DepthStencilStateの設定
+  D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
+  // Depthの機能を有効化する
+  depthStencilDesc.DepthEnable = true;
+  // 書き込みする
+  depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+  // 比較関数はLessEqual。つまり、近ければ描画される
+  depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+
+}
+
+void DirectXCommon::FenceInitialize()
+{
+  //初期値0でFenceを作る
+  uint64_t fenceValue = 0;
+  hr = device->CreateFence(fenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
+  assert(SUCCEEDED(hr));
+  //FenceのSignalを待つためのイベントを作成する
+  HANDLE fenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+  assert(fenceEvent != nullptr);
+
+}
 
