@@ -456,6 +456,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   dxCommon = new DirectXCommon();
   dxCommon->Initialize();
 
+
   //デバックレイヤー
 //#ifdef _DEBUG
 //  //Microsoft::WRL::ComPtr <ID3D12Debug1> debugController = nullptr;
