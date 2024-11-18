@@ -70,7 +70,7 @@ private:
   Microsoft::WRL::ComPtr <IDXGISwapChain4> swapChain = nullptr;
 
   // スワップチェーンリソース
-  std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, 2> swapChainResources;
+  std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, 2> &swapChainResources;
 
   //デバックレイヤー
   Microsoft::WRL::ComPtr <ID3D12Debug1> debugController = nullptr;
