@@ -880,13 +880,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   HANDLE fenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
   assert(fenceEvent != nullptr);
 
-  //// dxCompilerを初期化
-  //Microsoft::WRL::ComPtr <IDxcUtils> dxcUtils = nullptr;
-  //Microsoft::WRL::ComPtr <IDxcCompiler3> dxcCompiler = nullptr;
-  //hr = DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxcUtils));
-  //assert(SUCCEEDED(hr));
-  //hr = DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&dxcCompiler));
-  //assert(SUCCEEDED(hr));
+  // dxCompilerを初期化
+  Microsoft::WRL::ComPtr <IDxcUtils> dxcUtils = nullptr;
+  Microsoft::WRL::ComPtr <IDxcCompiler3> dxcCompiler = nullptr;
+  hr = DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxcUtils));
+  assert(SUCCEEDED(hr));
+  hr = DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&dxcCompiler));
+  assert(SUCCEEDED(hr));
 
   /*-------------------------------------------------------------------------------*/
   /*----------------------------各Descriptorの設定----------------------------------*/
@@ -1024,23 +1024,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   assert(SUCCEEDED(hr));
 
 
-  // ビューポート
-  D3D12_VIEWPORT viewport{};
-  //クライアント領域のサイズと一緒にして画面全体に表示
-  viewport.Width = WinApp::kClientWidth;
-  viewport.Height = WinApp::kClientHeight;
-  viewport.TopLeftX = 0;
-  viewport.TopLeftY = 0;
-  viewport.MinDepth = 0.0f;
-  viewport.MaxDepth = 1.0f;
+  //// ビューポート
+  //D3D12_VIEWPORT viewport{};
+  ////クライアント領域のサイズと一緒にして画面全体に表示
+  //viewport.Width = WinApp::kClientWidth;
+  //viewport.Height = WinApp::kClientHeight;
+  //viewport.TopLeftX = 0;
+  //viewport.TopLeftY = 0;
+  //viewport.MinDepth = 0.0f;
+  //viewport.MaxDepth = 1.0f;
 
-  // シザー短形
-  D3D12_RECT scissorRect{};
-  // 基本的にビューポートと同じ矩形が構成されるようにする
-  scissorRect.left = 0;
-  scissorRect.right = WinApp::kClientWidth;
-  scissorRect.top = 0;
-  scissorRect.bottom = WinApp::kClientHeight;
+  //// シザー短形
+  //D3D12_RECT scissorRect{};
+  //// 基本的にビューポートと同じ矩形が構成されるようにする
+  //scissorRect.left = 0;
+  //scissorRect.right = WinApp::kClientWidth;
+  //scissorRect.top = 0;
+  //scissorRect.bottom = WinApp::kClientHeight;
 
   Transform transform{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
 

@@ -243,3 +243,38 @@ void DirectXCommon::FenceInitialize()
 
 }
 
+void DirectXCommon::ViewportRectInitialize()
+{
+  //クライアント領域のサイズと一緒にして画面全体に表示
+  viewport.Width = WinApp::kClientWidth;
+  viewport.Height = WinApp::kClientHeight;
+  viewport.TopLeftX = 0;
+  viewport.TopLeftY = 0;
+  viewport.MinDepth = 0.0f;
+  viewport.MaxDepth = 1.0f;
+
+}
+
+void DirectXCommon::ScissorRect()
+{
+  // 基本的にビューポートと同じ矩形が構成されるようにする
+  scissorRect.left = 0;
+  scissorRect.right = WinApp::kClientWidth;
+  scissorRect.top = 0;
+  scissorRect.bottom = WinApp::kClientHeight;
+
+}
+
+void DirectXCommon::DXCCompiler()
+{
+  // dxCompilerを初期化
+  hr = DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxcUtils));
+  assert(SUCCEEDED(hr));
+  hr = DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&dxcCompiler));
+  assert(SUCCEEDED(hr));
+  //現時点でincludeはしないが、includeに対応するための設定を行っていく
+  hr = dxcUtils->CreateDefaultIncludeHandler(&includeHandler);
+  assert(SUCCEEDED(hr));
+
+}
+

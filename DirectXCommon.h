@@ -14,6 +14,8 @@
 class DirectXCommon
 {
 public: // メンバ関数
+  // namespace省略
+  template<class T>using ComPtr = Microsoft::WRL::ComPtr<T>;
 
   /// <summary>
   /// 初期化
@@ -56,7 +58,25 @@ private:
   /// </summary>
   void DSVInitialize();
 
+  /// <summary>
+  /// フェンスの生成
+  /// </summary>
   void FenceInitialize();
+
+  /// <summary>
+  /// ビューポート矩形の初期化
+  /// </summary>
+  void ViewportRectInitialize();
+
+  /// <summary>
+  /// シザリング矩形の初期化
+  /// </summary>
+  void ScissorRect();
+
+  /// <summary>
+  /// DXCコンパイラの生成
+  /// </summary>
+  void DXCCompiler();
 
   /// <summary>
 /// 指定番号のCPUデスクリプタハンドルを取得する
@@ -69,40 +89,40 @@ private:
 
 
   // RTV用のヒープでディスクリプタの数は2。RTVはshader内で触るものではないので、ShaderVisibleはfalse
-  Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> rtvDescriptorHeap = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
+  ComPtr <ID3D12DescriptorHeap> rtvDescriptorHeap = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
   // SRV用のヒープでディスクリプタの数は128.RTVはshader内で触るものなので、ShaderVisibleはtrue
-  Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> srvDescriptorHeap = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
+  ComPtr <ID3D12DescriptorHeap> srvDescriptorHeap = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
   // DSV用のヒープでディスクリプタの数は1。DSVはshader内で触るものではないので、ShaderVisibleはfalse
-  Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> dsvDescriptorHeap = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
+  ComPtr <ID3D12DescriptorHeap> dsvDescriptorHeap = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
 
 
   // swapChain
-  Microsoft::WRL::ComPtr <IDXGISwapChain4> swapChain = nullptr;
+  ComPtr <IDXGISwapChain4> swapChain = nullptr;
 
   // スワップチェーンリソース
-  std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, 2> &swapChainResources;
+  std::array<ComPtr<ID3D12Resource>, 2> &swapChainResources;
 
   //デバックレイヤー
-  Microsoft::WRL::ComPtr <ID3D12Debug1> debugController = nullptr;
+  ComPtr <ID3D12Debug1> debugController = nullptr;
   //仕様するアダプター用の変数。最初にnullptrを入れておく
-  Microsoft::WRL::ComPtr <IDXGIAdapter4> useAdapter = nullptr;
+  ComPtr <IDXGIAdapter4> useAdapter = nullptr;
 
   //コマンドアロケーターを生成する
-  Microsoft::WRL::ComPtr <ID3D12CommandAllocator> commandAllocator = nullptr;
+  ComPtr <ID3D12CommandAllocator> commandAllocator = nullptr;
   //コマンドリストを生成する
-  Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = nullptr;
+  ComPtr<ID3D12GraphicsCommandList> commandList = nullptr;
   //コマンドキューを生成する
-  Microsoft::WRL::ComPtr <ID3D12CommandQueue> commandQueue = nullptr;
+  ComPtr <ID3D12CommandQueue> commandQueue = nullptr;
   D3D12_COMMAND_QUEUE_DESC commandQueueDesc{};
 
   // WindowsAPI
   WinApp* winApp = nullptr;
 
   //IDXGIのファクトリーの生成
-  Microsoft::WRL::ComPtr <IDXGIFactory7>  dxgiFactory = nullptr;
+  ComPtr <IDXGIFactory7>  dxgiFactory = nullptr;
   //実際に頂点リソースを作る
-  Microsoft::WRL::ComPtr<ID3D12Resource> resource = nullptr;
-  Microsoft::WRL::ComPtr <ID3D12Device> device = nullptr;
+  ComPtr<ID3D12Resource> resource = nullptr;
+  ComPtr <ID3D12Device> device = nullptr;
 
   /// <summary>
   /// DescriptorHeapの生成
@@ -111,14 +131,25 @@ private:
   /// <param name="numDescriptors"></param>
   /// <param name="shaderVisible"></param>
   /// <returns></returns>
-  Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible);
+  ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible);
 
   static uint32_t descriptorsizeSRV;
   static uint32_t descriptorsizeRTV;
   static uint32_t descriptorsizeDSV;
-  Microsoft::WRL::ComPtr <IDxcUtils> dxcUtils = nullptr;
 
-  Microsoft::WRL::ComPtr <ID3D12Fence> fence = nullptr;
+  //フェンス
+  ComPtr <ID3D12Fence> fence = nullptr;
+
+  // ビューポート
+  D3D12_VIEWPORT viewport{};
+  // シザー短形
+  D3D12_RECT scissorRect{};
+
+  //DXCユーティリティ
+  ComPtr <IDxcUtils> dxcUtils = nullptr;
+  //DXCコンパイラの生成
+  ComPtr <IDxcCompiler3> dxcCompiler = nullptr;
+  ComPtr <IDxcIncludeHandler> includeHandler = nullptr;
 
 };
 
