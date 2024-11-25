@@ -1,6 +1,9 @@
 #include "DirectXCommon.h"
 #include<cassert>
 #include"Resource.h"
+#include"externals/imgui/imgui_impl_dx12.h"
+#include"externals/imgui/imgui_impl_win32.h"
+
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
 
@@ -13,7 +16,22 @@ void DirectXCommon::Initialize(WinApp* winApp)
   // メンバ変数に記録
   this->winApp = winApp;
 
-  HRESULT hr;
+  DeviceInitilaze();// デバイスの初期化
+  CommandInitilize();// コマンド関連の初期化
+  CreateSwapChain();// スワップチェーンの生成
+  CreateDepthBuffer();// 深度バッファの生成
+  CreateDescriptorHeap();// 各種デスクリプタヒープの生成
+  RenderTerggetInitialize();// レンダーターゲットビューの初期化
+  DSVInitialize();// 深度ステンシルビューの初期化
+  FenceInitialize();// フェンスの初期化
+  ViewportRectInitialize();// ビューポート矩形の初期化
+  ScissorRect();// シザリング矩形の初期化
+  DXCCompiler();// DXCコンパイラの生成
+  ImGuiInitilize();// ImGuiの初期化
+}
+
+void DirectXCommon::DeviceInitilaze()
+{
   //　デバッグレイヤー
 #ifdef _DEBUG
   if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
@@ -26,7 +44,7 @@ void DirectXCommon::Initialize(WinApp* winApp)
 
   //リソースリークチェック
   //D3DResourceLeakChecker leakCheck;
-  
+
   // DXGIファクトリ
   Microsoft::WRL::ComPtr<IDXGIFactory7> dxgiFactory;
   //HRESULTはWindows系のエラーコードであり、
@@ -75,6 +93,16 @@ void DirectXCommon::Initialize(WinApp* winApp)
   assert(device != nullptr);
   Logger::Log("Complete create D3D12Device!!!\n");//初期化完了のログを出す
 
+}
+
+// SRV専用の取得関数
+D3D12_CPU_DESCRIPTOR_HANDLE DirectXCommon::GetSRVCPUDescriptorHandle(uint32_t index)
+{
+  return GetCPUDescriptorHandle(srvDescriptorHeap.Get(), descriptorsizeSRV, index);
+}
+
+void DirectXCommon::CommandInitilize()
+{
   // コマンドアロケータ
   hr = device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocator));
   //コマンドアロケータの生成がうまくいかなかったので起動できない
@@ -91,8 +119,9 @@ void DirectXCommon::Initialize(WinApp* winApp)
   //コマンドキューの生成がうまくいかなかったので起動できない
   assert(SUCCEEDED(hr));
 
-  //SwapChain(スワップチェーン)を生成する
-  DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
+}
+void DirectXCommon::CreateSwapChain()
+{
   swapChainDesc.Width = WinApp::kClientWidth;//画面の幅。ウィンドウのクライアント領域を同じものにしておく
   swapChainDesc.Height = WinApp::kClientHeight;//画面の高さ。ウィンドウのクライアント領域を同じものにしておく
   swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;//色の形式
@@ -104,13 +133,6 @@ void DirectXCommon::Initialize(WinApp* winApp)
   hr = dxgiFactory->CreateSwapChainForHwnd(commandQueue.Get(), winApp->GetHwnd(), &swapChainDesc, nullptr, nullptr, reinterpret_cast<IDXGISwapChain1**>(swapChain.GetAddressOf()));
   assert(SUCCEEDED(hr));
 
-
-
-}
-// SRV専用の取得関数
-D3D12_CPU_DESCRIPTOR_HANDLE DirectXCommon::GetSRVCPUDescriptorHandle(uint32_t index)
-{
-  return GetCPUDescriptorHandle(srvDescriptorHeap.Get(), descriptorsizeSRV, index);
 }
 
 void DirectXCommon::CreateDepthBuffer()
@@ -157,19 +179,20 @@ Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> DirectXCommon::CreateDescriptorHeap
   descriptorHeapDesc.NumDescriptors = numDescriptors;
   descriptorHeapDesc.Flags = shaderVisible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
   HRESULT hr = device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&descriptorHeap));
-  //ディスクリプタヒープが作れなかったので起動できない
-  assert(SUCCEEDED(hr));
-  return descriptorHeap;
-}
-// デスクリプタヒープ生成関数
-void DirectXCommon::CreateDescriptorHeap()
-{
-
   // DescriptorSizeを取得する
   descriptorsizeSRV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
   descriptorsizeRTV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
   descriptorsizeDSV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+
+  //ディスクリプタヒープが作れなかったので起動できない
+  assert(SUCCEEDED(hr));
+  return descriptorHeap;
 }
+//// デスクリプタヒープ生成関数
+//void DirectXCommon::CreateDescriptorHeap()
+//{
+//
+//}
 
 void DirectXCommon::RenderTerggetInitialize()
 {
@@ -181,8 +204,6 @@ void DirectXCommon::RenderTerggetInitialize()
   hr = swapChain->GetBuffer(1, IID_PPV_ARGS(&swapChainResources[1]));
   assert(SUCCEEDED(hr));
 
-  //RTVの設定
-  D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
   rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;//出力結果をSRGB2変換して書き込む
   rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;//2Dテクスチャとして読み込む
   //ディスクリプタの先頭を取得する
@@ -203,6 +224,7 @@ void DirectXCommon::RenderTerggetInitialize()
   assert(SUCCEEDED(hr));
 
 }
+
 
 void DirectXCommon::DSVInitialize()
 {
@@ -275,6 +297,22 @@ void DirectXCommon::DXCCompiler()
   //現時点でincludeはしないが、includeに対応するための設定を行っていく
   hr = dxcUtils->CreateDefaultIncludeHandler(&includeHandler);
   assert(SUCCEEDED(hr));
+
+}
+
+void DirectXCommon::ImGuiInitilize()
+{
+  //-------ImGuiの初期化-----------//
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImGui::StyleColorsDark();
+  ImGui_ImplWin32_Init(winApp->GetHwnd());
+  ImGui_ImplDX12_Init(device.Get(),
+    swapChainDesc.BufferCount,
+    rtvDesc.Format,
+    srvDescriptorHeap.Get(),
+    srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+    srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 
 }
 

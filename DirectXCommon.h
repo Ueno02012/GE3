@@ -37,7 +37,15 @@ public: // メンバ関数
 
 private:
   HRESULT hr;
+  /// <summary>
+  /// デバイスの初期化
+  /// </summary>
+  void DeviceInitilaze();
 
+  /// <summary>
+  /// コマンド関連の初期化
+  /// </summary>
+  void CommandInitilize();
 /// <summary>
 /// 深度バッファの生成
 /// </summary>
@@ -52,6 +60,10 @@ private:
   /// レンダーターゲットの初期化
   /// </summary>
   void RenderTerggetInitialize();
+  /// <summary>
+  /// スワップチェーンの生成
+  /// </summary>
+  void CreateSwapChain();
 
   /// <summary>
   /// 深度ステンシルビューの初期化
@@ -79,6 +91,11 @@ private:
   void DXCCompiler();
 
   /// <summary>
+  /// ImGuiの初期化
+  /// </summary>
+  void ImGuiInitilize();
+
+  /// <summary>
 /// 指定番号のCPUデスクリプタハンドルを取得する
 /// </summary>
   static D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& descriptorHeap, uint32_t descriptorSize, uint32_t index);
@@ -98,9 +115,14 @@ private:
 
   // swapChain
   ComPtr <IDXGISwapChain4> swapChain = nullptr;
+  //SwapChain(スワップチェーン)を生成する
+  DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
 
   // スワップチェーンリソース
   std::array<ComPtr<ID3D12Resource>, 2> &swapChainResources;
+
+  //RTVの設定
+  D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
 
   //デバックレイヤー
   ComPtr <ID3D12Debug1> debugController = nullptr;
