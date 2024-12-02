@@ -9,6 +9,7 @@
 #include <wrl.h>
 #include"StringUtility.h"
 #include<format>
+#include <cstdint>
 #include "externals/DirectXTex/DirectXTex.h"
 
 class DirectXCommon
@@ -51,10 +52,14 @@ private:
 /// </summary>
   void CreateDepthBuffer();
 
+  ComPtr<ID3D12Resource> CreateDepthStencilTextureResource(ComPtr <ID3D12Device>& device, int32_t width, int32_t heigth);
+
+  void DepthStencilView();
+
   /// <summary>
   /// 各種DescriptorHeapの生成
   /// </summary>
-  void CreateDescriptorHeap();
+  void CreateDescriptorHeaps();
 
   /// <summary>
   /// レンダーターゲットの初期化
@@ -64,11 +69,6 @@ private:
   /// スワップチェーンの生成
   /// </summary>
   void CreateSwapChain();
-
-  /// <summary>
-  /// 深度ステンシルビューの初期化
-  /// </summary>
-  void DSVInitialize();
 
   /// <summary>
   /// フェンスの生成
@@ -96,21 +96,32 @@ private:
   void ImGuiInitilize();
 
   /// <summary>
+  /// 描画前処理
+  /// </summary>
+  void PreDraw();
+
+  /// <summary>
+  /// 描画前処理
+  /// </summary>
+  void postDraw();
+
+
+  /// <summary>
 /// 指定番号のCPUデスクリプタハンドルを取得する
 /// </summary>
-  static D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& descriptorHeap, uint32_t descriptorSize, uint32_t index);
+  static D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(const ComPtr<ID3D12DescriptorHeap>& descriptorHeap, uint32_t descriptorSize, uint32_t index);
   /// <summary>
 /// 指定番号のGPUデスクリプタハンドルを取得する
 /// </summary>
-  static D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& descriptorHeap, uint32_t descriptorSize, uint32_t index);
+  static D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(const ComPtr<ID3D12DescriptorHeap>& descriptorHeap, uint32_t descriptorSize, uint32_t index);
 
 
   // RTV用のヒープでディスクリプタの数は2。RTVはshader内で触るものではないので、ShaderVisibleはfalse
-  ComPtr <ID3D12DescriptorHeap> rtvDescriptorHeap = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
+  ComPtr <ID3D12DescriptorHeap> rtvDescriptorHeap = CreateDescriptorHeaps(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
   // SRV用のヒープでディスクリプタの数は128.RTVはshader内で触るものなので、ShaderVisibleはtrue
-  ComPtr <ID3D12DescriptorHeap> srvDescriptorHeap = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
+  ComPtr <ID3D12DescriptorHeap> srvDescriptorHeap = CreateDescriptorHeaps(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
   // DSV用のヒープでディスクリプタの数は1。DSVはshader内で触るものではないので、ShaderVisibleはfalse
-  ComPtr <ID3D12DescriptorHeap> dsvDescriptorHeap = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
+  ComPtr <ID3D12DescriptorHeap> dsvDescriptorHeap = CreateDescriptorHeaps(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
 
 
   // swapChain
@@ -123,6 +134,9 @@ private:
 
   //RTVの設定
   D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
+  D3D12_RESOURCE_DESC resourceDesc{};
+
+  ComPtr <ID3D12Resource> depthStencilResource;
 
   //デバックレイヤー
   ComPtr <ID3D12Debug1> debugController = nullptr;
@@ -136,6 +150,9 @@ private:
   //コマンドキューを生成する
   ComPtr <ID3D12CommandQueue> commandQueue = nullptr;
   D3D12_COMMAND_QUEUE_DESC commandQueueDesc{};
+
+  ComPtr<ID3D12DescriptorHeap> descriptorHeap = nullptr;
+  D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
 
   // WindowsAPI
   WinApp* winApp = nullptr;
@@ -153,11 +170,15 @@ private:
   /// <param name="numDescriptors"></param>
   /// <param name="shaderVisible"></param>
   /// <returns></returns>
-  ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible);
+  ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeaps(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible);
+  ComPtr <ID3D12DescriptorHeap> CreateDescriptorHeap(
+    ComPtr <ID3D12Device>& device, D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible);
 
-  static uint32_t descriptorsizeSRV;
-  static uint32_t descriptorsizeRTV;
-  static uint32_t descriptorsizeDSV;
+
+  uint32_t descriptorsizeSRV;
+  uint32_t descriptorsizeRTV;
+  uint32_t descriptorsizeDSV;
+
 
   //フェンス
   ComPtr <ID3D12Fence> fence = nullptr;
@@ -166,6 +187,8 @@ private:
   D3D12_VIEWPORT viewport{};
   // シザー短形
   D3D12_RECT scissorRect{};
+
+  D3D12_RESOURCE_BARRIER barrier{};
 
   //DXCユーティリティ
   ComPtr <IDxcUtils> dxcUtils = nullptr;

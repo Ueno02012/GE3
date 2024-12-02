@@ -16,7 +16,7 @@
 #include"externals/imgui/imgui_impl_win32.h"
 #include "externals/DirectXTex/DirectXTex.h"
 #include"MatrixVector.h"
-#include"Resource.h"
+//#include"Resource.h"
 #include<fstream>
 #include<sstream>
 
@@ -178,20 +178,20 @@ struct ModelDate {
 //
 
 
-Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> CreateDescriptorHeap(
-Microsoft::WRL::ComPtr <ID3D12Device>& device, D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible)
-{
-  //ディスクリプタヒープの生成
-  Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeap = nullptr;
-  D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
-  descriptorHeapDesc.Type = heapType;
-  descriptorHeapDesc.NumDescriptors = numDescriptors;
-  descriptorHeapDesc.Flags = shaderVisible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-  HRESULT hr = device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&descriptorHeap));
-  //ディスクリプタヒープが作れなかったので起動できない
-  assert(SUCCEEDED(hr));
-  return descriptorHeap;
-}
+//Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> CreateDescriptorHeap(
+//Microsoft::WRL::ComPtr <ID3D12Device>& device, D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible)
+//{
+//  //ディスクリプタヒープの生成
+//  Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeap = nullptr;
+//  D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
+//  descriptorHeapDesc.Type = heapType;
+//  descriptorHeapDesc.NumDescriptors = numDescriptors;
+//  descriptorHeapDesc.Flags = shaderVisible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+//  HRESULT hr = device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&descriptorHeap));
+//  //ディスクリプタヒープが作れなかったので起動できない
+//  assert(SUCCEEDED(hr));
+//  return descriptorHeap;
+//}
 
 ////Textureデータを読む
 //DirectX::ScratchImage LoadTexture(const std::string& filePath)
@@ -311,24 +311,24 @@ void DrawSphere(const uint32_t ksubdivision, VertexData* vertexdata) {
 /*-------------------------CPUのディスクリプタハンドルの取得関数---------------------------*/
 /*-----------------------------------------------------------------------------------*/
 
-D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(Microsoft::WRL::ComPtr <ID3D12DescriptorHeap>& descriptorHeap, uint32_t descriptorsize, uint32_t index)
-{
-
-  D3D12_CPU_DESCRIPTOR_HANDLE handleCPU = descriptorHeap->GetCPUDescriptorHandleForHeapStart();
-  handleCPU.ptr += (descriptorsize * index);
-  return handleCPU;
-}
+//D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(Microsoft::WRL::ComPtr <ID3D12DescriptorHeap>& descriptorHeap, uint32_t descriptorsize, uint32_t index)
+//{
+//
+//  D3D12_CPU_DESCRIPTOR_HANDLE handleCPU = descriptorHeap->GetCPUDescriptorHandleForHeapStart();
+//  handleCPU.ptr += (descriptorsize * index);
+//  return handleCPU;
+//}
 
 /*-----------------------------------------------------------------------------------*/
 /*-------------------------GPUのディスクリプタハンドルの取得関数---------------------------*/
 /*-----------------------------------------------------------------------------------*/
-
-D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& descriptorHeap, uint32_t descriptorsize, uint32_t index)
-{
-  D3D12_GPU_DESCRIPTOR_HANDLE handleGPU = descriptorHeap->GetGPUDescriptorHandleForHeapStart();
-  handleGPU.ptr += (descriptorsize * index);
-  return handleGPU;
-}
+//
+//D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& descriptorHeap, uint32_t descriptorsize, uint32_t index)
+//{
+//  D3D12_GPU_DESCRIPTOR_HANDLE handleGPU = descriptorHeap->GetGPUDescriptorHandleForHeapStart();
+//  handleGPU.ptr += (descriptorsize * index);
+//  return handleGPU;
+//}
 
 /*----------------------------------------------------------------------*/
 /*-------------------------Objファイルを読む関数---------------------------*/
@@ -452,6 +452,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
   // DirectXCommonのポインタ
   DirectXCommon* dxCommon = nullptr;
+
   //// DirectXの初期化
   //dxCommon = new DirectXCommon();
   //dxCommon->Initialize();
@@ -853,7 +854,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
   //// RTV用のヒープでディスクリプタの数は2。RTVはshader内で触るものではないので、ShaderVisibleはfalse
   //Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> rtvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
-  //// SRV用のヒープでディスクリプタの数は128.RTVはshader内で触るものなので、ShaderVisibleはtrue
+  // SRV用のヒープでディスクリプタの数は128.RTVはshader内で触るものなので、ShaderVisibleはtrue
   //Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> srvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
   //// DSV用のヒープでディスクリプタの数は1。DSVはshader内で触るものではないので、ShaderVisibleはfalse
   //Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> dsvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
@@ -1108,9 +1109,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //================ ImGui =================//
     //========================================// 
     
-    ImGui_ImplDX12_NewFrame();
-    ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
+    //ImGui_ImplDX12_NewFrame();
+    //ImGui_ImplWin32_NewFrame();
+    //ImGui::NewFrame();
 
     // 開発用UIの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に置き換える
     //ImGui::ShowDemoWindow();
@@ -1282,9 +1283,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   winApp->Finalize();
 
   // ImGuiの終了処理。
-  ImGui_ImplDX12_Shutdown();
-  ImGui_ImplWin32_Shutdown();
-  ImGui::DestroyContext();
+  //ImGui_ImplDX12_Shutdown();
+  //ImGui_ImplWin32_Shutdown();
+  //ImGui::DestroyContext();
 
   //CloseHandle(fenceEvent);
   delete input;
