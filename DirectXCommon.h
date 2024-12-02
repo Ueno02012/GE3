@@ -32,7 +32,7 @@ public: // メンバ関数
   /// <summary>
   /// 描画後処理
   /// </summary>
-  void postDraw();
+  void PostDraw();
 
   /// <summary>
 /// SRVの指定番号のCPUデスクリプタハンドルを取得する

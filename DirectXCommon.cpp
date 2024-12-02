@@ -341,7 +341,7 @@ void DirectXCommon::PreDraw()
 
 }
 
-void DirectXCommon::postDraw()
+void DirectXCommon::PostDraw()
 {
   UINT bbIndex = swapChain->GetCurrentBackBufferIndex();
   barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
