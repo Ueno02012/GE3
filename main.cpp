@@ -454,8 +454,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   DirectXCommon* dxCommon = nullptr;
 
   //// DirectXの初期化
-  //dxCommon = new DirectXCommon();
-  //dxCommon->Initialize();
+  dxCommon = new DirectXCommon();
+  dxCommon->Initialize(winApp);
 
 
   //デバックレイヤー
@@ -1171,6 +1171,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //ID3D12DescriptorHeap* descriptorHeap[] = { srvDescriptorHeap.Get() };
     //commandList->SetDescriptorHeaps(1, descriptorHeap);
 
+
+    // 描画前処理
+    dxCommon->PreDraw();
+
+
+
     //// ここから書き込むバックバッファのインデックスを取得
     //UINT backBufferIndex = swapChain->GetCurrentBackBufferIndex();
     //// TransitionBarrierの設定
@@ -1275,7 +1281,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //assert(SUCCEEDED(hr));
     //hr = commandList->Reset(commandAllocator.Get(), nullptr);
     //assert(SUCCEEDED(hr));
-
+    dxCommon->postDraw();
     
   }
 

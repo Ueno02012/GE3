@@ -3,20 +3,19 @@
 #include<dxgi1_6.h>
 #include <d3d12sdklayers.h>
 #include<dxcapi.h>
-#include<cassert>
 #include"WinApp.h"
-#include"Logger.h"
 #include <wrl.h>
-#include"StringUtility.h"
-#include<format>
 #include <cstdint>
 #include "externals/DirectXTex/DirectXTex.h"
+#include<array>
 
 class DirectXCommon
 {
 public: // メンバ関数
   // namespace省略
   template<class T>using ComPtr = Microsoft::WRL::ComPtr<T>;
+
+  //DirectXCommon():swapChainResources({nullptr}) {};
 
   /// <summary>
   /// 初期化
@@ -25,6 +24,15 @@ public: // メンバ関数
   void Initialize(WinApp* winApp);
 
 
+  /// <summary>
+  /// 描画前処理
+  /// </summary>
+  void PreDraw();
+
+  /// <summary>
+  /// 描画後処理
+  /// </summary>
+  void postDraw();
 
   /// <summary>
 /// SRVの指定番号のCPUデスクリプタハンドルを取得する
@@ -95,15 +103,6 @@ private:
   /// </summary>
   void ImGuiInitilize();
 
-  /// <summary>
-  /// 描画前処理
-  /// </summary>
-  void PreDraw();
-
-  /// <summary>
-  /// 描画前処理
-  /// </summary>
-  void postDraw();
 
 
   /// <summary>
@@ -117,12 +116,11 @@ private:
 
 
   // RTV用のヒープでディスクリプタの数は2。RTVはshader内で触るものではないので、ShaderVisibleはfalse
-  ComPtr <ID3D12DescriptorHeap> rtvDescriptorHeap = CreateDescriptorHeaps(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
+  ComPtr <ID3D12DescriptorHeap> rtvDescriptorHeap; 
   // SRV用のヒープでディスクリプタの数は128.RTVはshader内で触るものなので、ShaderVisibleはtrue
-  ComPtr <ID3D12DescriptorHeap> srvDescriptorHeap = CreateDescriptorHeaps(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
+  ComPtr <ID3D12DescriptorHeap> srvDescriptorHeap;  
   // DSV用のヒープでディスクリプタの数は1。DSVはshader内で触るものではないので、ShaderVisibleはfalse
-  ComPtr <ID3D12DescriptorHeap> dsvDescriptorHeap = CreateDescriptorHeaps(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
-
+  ComPtr <ID3D12DescriptorHeap> dsvDescriptorHeap;
 
   // swapChain
   ComPtr <IDXGISwapChain4> swapChain = nullptr;
@@ -130,7 +128,7 @@ private:
   DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
 
   // スワップチェーンリソース
-  std::array<ComPtr<ID3D12Resource>, 2> &swapChainResources;
+  std::array<ComPtr<ID3D12Resource>, 2> swapChainResources;
 
   //RTVの設定
   D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
@@ -151,6 +149,7 @@ private:
   ComPtr <ID3D12CommandQueue> commandQueue = nullptr;
   D3D12_COMMAND_QUEUE_DESC commandQueueDesc{};
 
+
   ComPtr<ID3D12DescriptorHeap> descriptorHeap = nullptr;
   D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
 
@@ -159,6 +158,7 @@ private:
 
   //IDXGIのファクトリーの生成
   ComPtr <IDXGIFactory7>  dxgiFactory = nullptr;
+
   //実際に頂点リソースを作る
   ComPtr<ID3D12Resource> resource = nullptr;
   ComPtr <ID3D12Device> device = nullptr;
@@ -170,9 +170,10 @@ private:
   /// <param name="numDescriptors"></param>
   /// <param name="shaderVisible"></param>
   /// <returns></returns>
-  ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeaps(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible);
-  ComPtr <ID3D12DescriptorHeap> CreateDescriptorHeap(
-    ComPtr <ID3D12Device>& device, D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible);
+  ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible);
+  
+  //RTVを2つ作るのでディスクリプタを2つ用意
+  D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[2];
 
 
   uint32_t descriptorsizeSRV;
@@ -182,6 +183,9 @@ private:
 
   //フェンス
   ComPtr <ID3D12Fence> fence = nullptr;
+  //フェンス値
+  uint64_t fenceValue = 0;
+  HANDLE fenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 
   // ビューポート
   D3D12_VIEWPORT viewport{};
