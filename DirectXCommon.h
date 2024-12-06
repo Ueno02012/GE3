@@ -44,6 +44,14 @@ public: // メンバ関数
   /// </summary>
   //D3D12_GPU_DESCRIPTOR_HANDLE GetSRVGPUDescriptorHandle(uint32_t index);
 
+  ComPtr<ID3D12Resource> CreateBufferResource (size_t sizeInBytes);
+  ComPtr<ID3D12Resource> CreateDepthStencilTextureResource(ComPtr <ID3D12Device>& device, int32_t width, int32_t heigth);
+
+
+  //getter
+  ID3D12Device* GetDevice() const { return device.Get(); }
+  ID3D12GraphicsCommandList* GetCommandList() const { return commandList.Get(); }
+
 private:
   HRESULT hr;
   /// <summary>
@@ -60,7 +68,6 @@ private:
 /// </summary>
   void CreateDepthBuffer();
 
-  ComPtr<ID3D12Resource> CreateDepthStencilTextureResource(ComPtr <ID3D12Device>& device, int32_t width, int32_t heigth);
 
   void DepthStencilView();
 
