@@ -929,8 +929,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   hr = dxCommon->GetDevice()->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineState));
   assert(SUCCEEDED(hr));
 
-
-
   Transform transform{ {1.0f,1.0f,1.0f},{0.0f,3.0f,0.0f},{0.0f,0.0f,0.0f} };
 
   Transform transformSprite{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
