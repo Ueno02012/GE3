@@ -1,7 +1,7 @@
 #include<cstdint>
 #include<string>
 #include<format>
-
+#include"Transform.h"
 #include<d3d12.h>
 #include<dxgi1_6.h>
 #include<cassert>
@@ -16,7 +16,6 @@
 #include"externals/imgui/imgui_impl_win32.h"
 #include "externals/DirectXTex/DirectXTex.h"
 #include"MatrixVector.h"
-#include"Resource.h"
 #include<fstream>
 #include<sstream>
 
@@ -26,6 +25,7 @@
 #include "DirectXCommon.h"
 #include"Logger.h"
 
+#include"Sphere.h"
 #include"Sprite.h"
 #include"SpriteCommon.h"
 
@@ -36,30 +36,17 @@
 #pragma comment(lib,"dxcompiler.lib")
 
 
-struct Transform {
-  Vector3 scale;
-  Vector3 rotate;
-  Vector3 translate;
-};
+//struct TransformationMatrix {
+//  Matrix4x4 WVP;
+//  Matrix4x4 World;
+//};
 
-struct VertexData
-{
-  Vector4 position;
-  Vector2 texcoord;
-  Vector3 normal;
-};
-
-struct TransformationMatrix {
-  Matrix4x4 WVP;
-  Matrix4x4 World;
-};
-
-struct Material {
-  Vector4 color;
-  int32_t endbleLighting;
-  float padding[3];
-  Matrix4x4 uvTransform;
-};
+//struct Material {
+//  Vector4 color;
+//  int32_t endbleLighting;
+//  float padding[3];
+//  Matrix4x4 uvTransform;
+//};
 
 struct DirectionalLight {
   Vector4 color; //!< ライトの色
@@ -70,8 +57,6 @@ struct DirectionalLight {
 struct MaterialDate {
   std::string textureFilePath;
 };
-
-
 struct ModelDate {
   std::vector<VertexData> vertices;
   MaterialDate material;
@@ -85,72 +70,6 @@ bool DepthFunc(float currZ, float prevZ) {
 }
 
 
-/*------------------------------------------------------------------------------------*/
-/*-------------------------------------球の作成関数-------------------------------------*/
-/*------------------------------------------------------------------------------------*/
-
-void DrawSphere(const uint32_t ksubdivision, VertexData* vertexdata) {
-   //球の頂点数を計算する
-  //経度分割1つ分の角度 
-  const float kLonEvery = (float)M_PI * 2.0f / float(ksubdivision);
-  //緯度分割1つ分の角度 
-  const float kLatEvery = (float)M_PI / float(ksubdivision);
-  //経度の方向に分割
-  for (uint32_t latIndex = 0; latIndex < ksubdivision; ++latIndex)
-  {
-    float lat = -(float)M_PI / 2.0f + kLatEvery * latIndex;	// θ
-    //経度の方向に分割しながら線を描く
-    for (uint32_t lonIndex = 0; lonIndex < ksubdivision; ++lonIndex)
-    {
-      float u = float(lonIndex) / float(ksubdivision);
-      float v = 1.0f - float(latIndex) / float(ksubdivision);
-
-      //頂点位置を計算する
-      uint32_t start = (latIndex * ksubdivision + lonIndex) * 6;
-      float lon = lonIndex * kLonEvery;	// Φ
-      //頂点にデータを入力する。基準点 a
-      vertexdata[start + 0].position = { cos(lat) * cos(lon) ,sin(lat) , cos(lat) * sin(lon) ,1.0f };
-      vertexdata[start + 0].texcoord = { u,v };
-      vertexdata[start + 0].normal.x = vertexdata[start + 0].position.x;
-      vertexdata[start + 0].normal.y = vertexdata[start + 0].position.y;
-      vertexdata[start + 0].normal.z = vertexdata[start + 0].position.z;
-
-      //基準点 b
-      vertexdata[start + 1].position = { cos(lat + kLatEvery) * cos(lon),sin(lat + kLatEvery),cos(lat + kLatEvery) * sin(lon) ,1.0f };
-      vertexdata[start + 1].texcoord = { u ,v - 1.0f / float(ksubdivision) };
-      vertexdata[start + 1].normal.x = vertexdata[start + 1].position.x;
-      vertexdata[start + 1].normal.y = vertexdata[start + 1].position.y;
-      vertexdata[start + 1].normal.z = vertexdata[start + 1].position.z;
-
-      //基準点 c
-      vertexdata[start + 2].position = { cos(lat) * cos(lon + kLonEvery),sin(lat), cos(lat) * sin(lon + kLonEvery) ,1.0f };
-      vertexdata[start + 2].texcoord = { u + 1.0f / float(ksubdivision),v };
-      vertexdata[start + 2].normal.x = vertexdata[start + 2].position.x;
-      vertexdata[start + 2].normal.y = vertexdata[start + 2].position.y;
-      vertexdata[start + 2].normal.z = vertexdata[start + 2].position.z;
-
-      //基準点 d
-      vertexdata[start + 3].position = { cos(lat + kLatEvery) * cos(lon + kLonEvery), sin(lat + kLatEvery) , cos(lat + kLatEvery) * sin(lon + kLonEvery) ,1.0f };
-      vertexdata[start + 3].texcoord = { u + 1.0f / float(ksubdivision), v - 1.0f / float(ksubdivision) };
-      vertexdata[start + 3].normal.x = vertexdata[start + 3].position.x;
-      vertexdata[start + 3].normal.y = vertexdata[start + 3].position.y;
-      vertexdata[start + 3].normal.z = vertexdata[start + 3].position.z;
-
-      //頂点4 (b, c, d)
-      vertexdata[start + 4].position = { cos(lat) * cos(lon + kLonEvery),sin(lat),cos(lat) * sin(lon + kLonEvery),1.0f };
-      vertexdata[start + 4].texcoord = { u + 1.0f / float(ksubdivision) ,v };
-      vertexdata[start + 4].normal.x = vertexdata[start + 4].position.x;
-      vertexdata[start + 4].normal.y = vertexdata[start + 4].position.y;
-      vertexdata[start + 4].normal.z = vertexdata[start + 4].position.z;
-
-      vertexdata[start + 5].position = { cos(lat + kLatEvery) * cos(lon),sin(lat + kLatEvery),cos(lat + kLatEvery) * sin(lon),1.0f };
-      vertexdata[start + 5].texcoord = { u,v - 1.0f / float(ksubdivision) };
-      vertexdata[start + 5].normal.x = vertexdata[start + 5].position.x;
-      vertexdata[start + 5].normal.y = vertexdata[start + 5].position.y;
-      vertexdata[start + 5].normal.z = vertexdata[start + 5].position.z;
-    }
-  }
-}
 
 
 
@@ -294,7 +213,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region 最初のシーンの初期化
 
   Sprite* sprite = new Sprite();
-  sprite->Initialize();
+  sprite->Initialize(spriteCommon);
 
 #pragma endregion 最初のシーンの終了
 
@@ -594,8 +513,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     /*------------------------------------------*/
     /*---------MVP,WorldMatrixの行列を作る--------*/
     /*------------------------------------------*/
-
-    //transform.rotate.y += 0.01f;
 
     Matrix4x4 worludMatrix = MakeAftineMatrix(transform.scale, transform.rotate, transform.translate);
     Matrix4x4 cameraMatrix = MakeAftineMatrix(cameratransform.scale, cameratransform.rotate, cameratransform.translate);
