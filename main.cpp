@@ -629,7 +629,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     ID3D12DescriptorHeap* descriptorHeap[] = { dxCommon->GetSRV()};
     dxCommon->GetCommandList()->SetDescriptorHeaps(1, descriptorHeap);
 
-
     // 描画前処理
     dxCommon->PreDraw();
 
@@ -666,7 +665,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //// TransformationMatrixBufferの場所を設定
     dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResourceSprite->GetGPUVirtualAddress());
     //// 描画! (DrawCall/ドローコール) 6個のインデックスを使用し1つのインスタンスを描画、その他は当面０で良い
-    ////commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
+    dxCommon->GetCommandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
 
     /*---------------------------------------------------*/
     /*-------------------2dの描画コマンド終了---------------*/
