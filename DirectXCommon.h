@@ -5,6 +5,7 @@
 #include<dxcapi.h>
 #include"WinApp.h"
 #include <wrl.h>
+#include<string>
 #include <cstdint>
 #include "externals/DirectXTex/DirectXTex.h"
 #include<array>
@@ -34,6 +35,21 @@ public: // メンバ関数
   /// </summary>
   void PostDraw();
 
+
+  /// <summary>
+/// 指定番号のCPUデスクリプタハンドルを取得する
+/// </summary>
+  static D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(const ComPtr<ID3D12DescriptorHeap>& descriptorHeap, uint32_t descriptorSize, uint32_t index);
+  /// <summary>
+/// 指定番号のGPUデスクリプタハンドルを取得する
+/// </summary>
+  static D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(const ComPtr<ID3D12DescriptorHeap>& descriptorHeap, uint32_t descriptorSize, uint32_t index);
+
+  //======== ShaderをCompile ===========// 
+  ComPtr<IDxcBlob> CompileShader(
+    const std::wstring& filePath,
+    const wchar_t* profile);
+
   /// <summary>
 /// SRVの指定番号のCPUデスクリプタハンドルを取得する
 /// </summary>
@@ -42,15 +58,46 @@ public: // メンバ関数
   /// <summary>
   /// SRVの指定番号のGPUデスクリプタハンドルを取得する
   /// </summary>
-  //D3D12_GPU_DESCRIPTOR_HANDLE GetSRVGPUDescriptorHandle(uint32_t index);
+  D3D12_GPU_DESCRIPTOR_HANDLE GetSRVGPUDescriptorHandle(uint32_t index);
 
   ComPtr<ID3D12Resource> CreateBufferResource (size_t sizeInBytes);
-  ComPtr<ID3D12Resource> CreateDepthStencilTextureResource(ComPtr <ID3D12Device>& device, int32_t width, int32_t heigth);
+  /// <summary>
+  /// テクスチャーリソースの生成
+  /// </summary>
+  /// <param name="device"></param>
+  /// <param name="metadata"></param>
+  /// <returns></returns>
+  ComPtr<ID3D12Resource> CreateTextureResource(
+    ID3D12Device* device, const DirectX::TexMetadata& metadata);
+  /// <summary>
+  /// テクスチャーデータの転送
+  /// </summary>
+  /// <param name="texture"></param>
+  /// <param name="mipImage"></param>
+  void UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mipImage);
+  /// <summary>
+  /// テクスチャーファイルの読み込み
+  /// </summary>
+  /// <param name="filePath">テクスチャーファイルのパス</param>
+  /// <returns>画像イメージデータ</returns>
+  static DirectX::ScratchImage LoadTexture(const std::string& filePath);
 
+  ComPtr<ID3D12Resource> CreateDepthStencilTextureResource(ComPtr <ID3D12Device>& device, int32_t width, int32_t heigth);
 
   //getter
   ID3D12Device* GetDevice() const { return device.Get(); }
   ID3D12GraphicsCommandList* GetCommandList() const { return commandList.Get(); }
+  ID3D12DescriptorHeap* GetSRV() const { return srvDescriptorHeap.Get(); }
+
+
+  void DepthStencilView();
+
+
+  //DXCユーティリティ
+  ComPtr <IDxcUtils> dxcUtils = nullptr;
+  //DXCコンパイラの生成
+  ComPtr <IDxcCompiler3> dxcCompiler = nullptr;
+  ComPtr <IDxcIncludeHandler> includeHandler = nullptr;
 
 private:
   HRESULT hr;
@@ -69,7 +116,6 @@ private:
   void CreateDepthBuffer();
 
 
-  void DepthStencilView();
 
   /// <summary>
   /// 各種DescriptorHeapの生成
@@ -111,17 +157,6 @@ private:
   void ImGuiInitilize();
 
 
-
-  /// <summary>
-/// 指定番号のCPUデスクリプタハンドルを取得する
-/// </summary>
-  static D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(const ComPtr<ID3D12DescriptorHeap>& descriptorHeap, uint32_t descriptorSize, uint32_t index);
-  /// <summary>
-/// 指定番号のGPUデスクリプタハンドルを取得する
-/// </summary>
-  static D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(const ComPtr<ID3D12DescriptorHeap>& descriptorHeap, uint32_t descriptorSize, uint32_t index);
-
-
   // RTV用のヒープでディスクリプタの数は2。RTVはshader内で触るものではないので、ShaderVisibleはfalse
   ComPtr <ID3D12DescriptorHeap> rtvDescriptorHeap; 
   // SRV用のヒープでディスクリプタの数は128.RTVはshader内で触るものなので、ShaderVisibleはtrue
@@ -139,9 +174,11 @@ private:
 
   //RTVの設定
   D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
-  D3D12_RESOURCE_DESC resourceDesc{};
 
   ComPtr <ID3D12Resource> depthStencilResource;
+
+  // DepthStencilStateの設定
+  D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
 
   //デバックレイヤー
   ComPtr <ID3D12Debug1> debugController = nullptr;
@@ -201,11 +238,6 @@ private:
 
   D3D12_RESOURCE_BARRIER barrier{};
 
-  //DXCユーティリティ
-  ComPtr <IDxcUtils> dxcUtils = nullptr;
-  //DXCコンパイラの生成
-  ComPtr <IDxcCompiler3> dxcCompiler = nullptr;
-  ComPtr <IDxcIncludeHandler> includeHandler = nullptr;
 
 };
 
