@@ -1,5 +1,4 @@
 #include<string>
-//#include"Resource.h"
 #include"DirectXCommon.h"
 #include "StringUtility.h"
 

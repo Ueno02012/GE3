@@ -26,6 +26,10 @@
 #include "DirectXCommon.h"
 #include"Logger.h"
 
+#include"Sprite.h"
+#include"SpriteCommon.h"
+
+
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
 
@@ -437,6 +441,9 @@ ModelDate LoadObjFile(const std::string& directoryPath, const std::string& filen
 
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
+
+#pragma region 基盤システムの初期化
+
   OutputDebugStringA("Hello,Directx!\n");
 
   //WindowsAPIのポインタ
@@ -458,39 +465,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   dxCommon = new DirectXCommon();
   dxCommon->Initialize(winApp);
 
+  SpriteCommon* spriteCommon = nullptr;
+  // スプライト共通部の初期化
+  spriteCommon = new SpriteCommon;
+  spriteCommon->Initialize();
 
+#pragma endregion 基盤システムの初期化
 
-//#ifdef _DEBUG
-//  Microsoft::WRL::ComPtr <ID3D12InfoQueue> infoQueue = nullptr;
-//  if (SUCCEEDED(device->QueryInterface(IID_PPV_ARGS(&infoQueue)))) {
-//    //ヤバイエラー時に止まる
-//    infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
-//    //エラー時に止まる
-//    infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
-//    //警告時に止まる
-//    infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
-//    //抑制するメッセージのID
-//    D3D12_MESSAGE_ID denyIds[] = {
-//      //Windows11でのDXGIデバッグレイヤーとDX12デバッグレイヤーの相互作用バグによるエラーメッセージ
-//      //https://stackoverflow.com/questions/69805245/directx-12-application-is-crashing-in-windows-11
-//      D3D12_MESSAGE_ID_RESOURCE_BARRIER_MISMATCHING_COMMAND_LIST_TYPE
-//    };
-//    //抑制するレベル
-//    D3D12_MESSAGE_SEVERITY severities[] = { D3D12_MESSAGE_SEVERITY_INFO };
-//    D3D12_INFO_QUEUE_FILTER filter{};
-//    filter.DenyList.NumIDs = _countof(denyIds);
-//    filter.DenyList.pIDList = denyIds;
-//    filter.DenyList.NumSeverities = _countof(severities);
-//    filter.DenyList.pSeverityList = severities;
-//    //指定したメッセージの表示を抑制
-//    infoQueue->PushStorageFilter(&filter);
-//
-//    //解放
-//    infoQueue->Release();
-//  }
-//#endif
+#pragma region 最初のシーンの初期化
 
+  Sprite* sprite = new Sprite();
+  sprite->Initialize();
 
+#pragma endregion 最初のシーンの終了
 
   //DescriptorRange作成
   D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
@@ -1182,6 +1169,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
   // WindowsAPI解放
   delete winApp;
+
+  delete sprite;
+  delete spriteCommon;
 
   // DirectX解放
   delete dxCommon;
