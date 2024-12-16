@@ -9,6 +9,7 @@
 #include <cstdint>
 #include "externals/DirectXTex/DirectXTex.h"
 #include<array>
+#include<chrono>
 
 class DirectXCommon
 {
@@ -99,6 +100,9 @@ public: // メンバ関数
   ComPtr <IDxcCompiler3> dxcCompiler = nullptr;
   ComPtr <IDxcIncludeHandler> includeHandler = nullptr;
 
+
+
+
 private:
   HRESULT hr;
   /// <summary>
@@ -114,7 +118,6 @@ private:
 /// 深度バッファの生成
 /// </summary>
   void CreateDepthBuffer();
-
 
 
   /// <summary>
@@ -156,6 +159,12 @@ private:
   /// </summary>
   void ImGuiInitilize();
 
+  //記録時間(FPS固定用)
+  std::chrono::steady_clock::time_point reference_;
+
+
+  //====================//
+  //====================//
 
   // RTV用のヒープでディスクリプタの数は2。RTVはshader内で触るものではないので、ShaderVisibleはfalse
   ComPtr <ID3D12DescriptorHeap> rtvDescriptorHeap; 
@@ -219,11 +228,9 @@ private:
   //RTVを2つ作るのでディスクリプタを2つ用意
   D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[2];
 
-
   uint32_t descriptorsizeSRV;
   uint32_t descriptorsizeRTV;
   uint32_t descriptorsizeDSV;
-
 
   //フェンス
   ComPtr <ID3D12Fence> fence = nullptr;
@@ -235,9 +242,13 @@ private:
   D3D12_VIEWPORT viewport{};
   // シザー短形
   D3D12_RECT scissorRect{};
-
+  // バリア
   D3D12_RESOURCE_BARRIER barrier{};
 
+  // FPS固定初期化
+  void InitializeFixFPS();
+  // FPS固定更新
+  void UpdateFixFPS();
 
 };
 
