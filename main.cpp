@@ -208,12 +208,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   spriteCommon = new SpriteCommon;
   spriteCommon->Initialize(dxCommon);
 
+
 #pragma endregion 基盤システムの初期化
 
 #pragma region 最初のシーンの初期化
 
   Sprite* sprite = new Sprite();
   sprite->Initialize(spriteCommon);
+
+  std::vector<Sprite*> sprites;
+  for (uint32_t i = 0; i < 5; i++) {
+    Sprite* sprite = new Sprite();
+    sprite->Initialize(spriteCommon);
+    sprites.push_back(sprite);
+  }
 
 #pragma endregion 最初のシーンの終了
 
@@ -315,68 +323,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   // 頂点データをリソースにコピー
   std::memcpy(vertexData, modelDate.vertices.data(), sizeof(VertexData) * modelDate.vertices.size());
 
-  //球の頂点にデータを入力
-  //DrawSphere(kSubdivision, vertexData);
-
-  /*-------------------------------------------------------*/
-  /*----------------------spriteのデータ---------------------*/
-  /*------------------------------------------------------*/
-
-  // Sprite用の頂点リソースを作る
-  Microsoft::WRL::ComPtr <ID3D12Resource> vertexResoruceSprite = dxCommon->CreateBufferResource(sizeof(VertexData) * 4);
-
-  //頂点バッファビューを作成する
-  D3D12_VERTEX_BUFFER_VIEW vertexBufferViewSprite{};
-  // リソースの先頭のアドレスから使う
-  vertexBufferViewSprite.BufferLocation = vertexResoruceSprite->GetGPUVirtualAddress();
-  // 使用するリソースのサイズは4つ分のサイズ
-  vertexBufferViewSprite.SizeInBytes = sizeof(VertexData) * 4;
-  // 1頂点当たりのサイズ
-  vertexBufferViewSprite.StrideInBytes = sizeof(VertexData);
-
-  //頂点リソースにデータを書き込む
-  VertexData* vertexDataSprite = nullptr;
-  //書き込むためのアドレスを取得
-  vertexResoruceSprite->Map(0, nullptr, reinterpret_cast<void**>(&vertexDataSprite));
-
-  vertexDataSprite[0].position = { 0.0f,360.0f,0.0f,1.0f };
-  vertexDataSprite[0].texcoord = { 0.0f,1.0f };
-  vertexDataSprite[1].position = { 0.0f,0.0f,0.0f,1.0f };
-  vertexDataSprite[1].texcoord = { 0.0f,0.0f };
-  vertexDataSprite[2].position = { 640.0f,360.0f,0.0f,1.0f };
-  vertexDataSprite[2].texcoord = { 1.0f,1.0f };
-  vertexDataSprite[3].position = { 640.0f,0.0f,0.0f,1.0f };
-  vertexDataSprite[3].texcoord = { 1.0f,0.0f };
-  for (int i = 0; i < 4; i++) {
-    vertexDataSprite[i].normal = { 0.0f,0.0f,-1.0f };
-  }
-
-  Microsoft::WRL::ComPtr <ID3D12Resource> indexResourceSprite =dxCommon->CreateBufferResource(sizeof(uint32_t) * 6);
-  //頂点バッファビューを作成する
-  D3D12_INDEX_BUFFER_VIEW indexBufferViewSprite{};
-  // リソースの先頭のアドレスから使う
-  indexBufferViewSprite.BufferLocation = indexResourceSprite->GetGPUVirtualAddress();
-  // 使用するリソースのサイズは6つ分のサイズ
-  indexBufferViewSprite.SizeInBytes = sizeof(uint32_t) * 6;
-  // インデックスはuint32_tとする
-  indexBufferViewSprite.Format = DXGI_FORMAT_R32_UINT;
-  // インデックスリソースにデータを書き込む
-  uint32_t* indexDateSprite = nullptr;
-  indexResourceSprite->Map(0, nullptr, reinterpret_cast<void**>(&indexDateSprite));
-  indexDateSprite[0] = 0; indexDateSprite[1] = 1; indexDateSprite[2] = 2;
-  indexDateSprite[3] = 1; indexDateSprite[4] = 3; indexDateSprite[5] = 2;
-
-  // Sprite用のTransformationMatrix用のリソースを作る。
-  Microsoft::WRL::ComPtr <ID3D12Resource> transformationMatrixResourceSprite =dxCommon->CreateBufferResource(sizeof(TransformationMatrix));
-  // データを書き込む
-  TransformationMatrix* transformationMatrixDateSprite = nullptr;
-  // 書き込むためのアドレスを取得
-  transformationMatrixResourceSprite->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixDateSprite));
-  // 単位行列を書き込んでおく
-  transformationMatrixDateSprite->World = MakeIdentity4x4();
-  transformationMatrixDateSprite->WVP = MakeIdentity4x4();
-
-
   /*------------------------------------------------------------*/
   /*--------------------------SRVの設定--------------------------*/
   /*------------------------------------------------------------*/
@@ -409,9 +355,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   ////SRVを作成するDescriptorHeapの場所を決める
   D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = dxCommon->GetSRVCPUDescriptorHandle(1);
   D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU = dxCommon->GetSRVGPUDescriptorHandle(1);
-  //先頭はImGuiが使っているのでその次を使う
-  textureSrvHandleCPU.ptr += dxCommon->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-  textureSrvHandleGPU.ptr += dxCommon->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+ 
   //SRVの生成
   dxCommon->GetDevice()->CreateShaderResourceView(textureResource.Get(), &srvDesc, textureSrvHandleCPU);
 
@@ -419,9 +363,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU2 = dxCommon->GetSRVCPUDescriptorHandle(2);
   D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU2 = dxCommon->GetSRVGPUDescriptorHandle(2);
 
-  //先頭はImGuiが使っているのでその次を使う
-  textureSrvHandleCPU2.ptr += dxCommon->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-  textureSrvHandleGPU2.ptr += dxCommon->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
   //SRVの生成
   dxCommon->GetDevice()->CreateShaderResourceView(textureResource2.Get(), &srvDesc2, textureSrvHandleCPU2);
 
@@ -447,6 +388,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
   bool useMonsterBall = true;
 
+
+
  //==================================================//
  //=================== メインループ ===================//
  //==================================================//
@@ -466,7 +409,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   //===================================================//
 
     input->Update();
-
     if (input->PushKey(DIK_A))
     {
       transform.translate.x -= 0.1f;
@@ -481,6 +423,43 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     if (input->TriggerKey(DIK_S)) {
       transform.translate.y -= 0.1f;
     }
+    //=========================================================//
+    // ===================== 移動テスト =========================//
+    // ========================================================//
+    // 現在の座標を変数で受ける
+    Vector2 position = sprite->GetPosition();
+    // 座標を変更する
+    position.x += 0.1f;
+    position.y += 0.1f;
+    //変更を反映する
+    sprite->SetPosition(position);
+    sprite->Update();
+
+    //=========================================================//
+    // ===================== 回転テスト =========================//
+    // ========================================================//
+    // 角度を変化させるテスト
+    float rotation = sprite->GetRotation();
+    //rotation += 0.01f;
+    sprite->SetRotation(rotation);
+
+    //========================================================//
+    // ===================== 色を変えるテスト ===================//
+    // =======================================================//
+    Vector4 color = sprite->GetColor();
+    color.x += 0.01f;
+    if (color.x > 1.0f) {
+      color.x -= 1.0f;
+    }
+    sprite->SetColor(color);
+    //========================================================//
+    // ===================== サイズ変更のテスト ===================//
+    // =======================================================//
+    Vector2 size = sprite->GetSize();
+    size.x += 0.5f;
+    size.y += 0.5f;
+    sprite->SetSize(size);
+
 
     //========================================//
     //================ ImGui =================//
@@ -495,6 +474,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     ImGui::Begin("Sprite");
     ImGui::DragFloat3("translate", &transform.translate.x, 0.01f);
+    ImGui::DragFloat3("translate", &position.x, 0.01f);
     ImGui::SliderAngle("SphererRotateX", &transform.rotate.x);
     ImGui::SliderAngle("SphererRotateY", &transform.rotate.y);
     ImGui::SliderAngle("SphererRotateZ", &transform.rotate.z);
@@ -526,12 +506,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     /*---Sprite用のWorldViewProjectionMatrixを作る---*/
     /*--------------------------------------------*/
 
-    Matrix4x4 worludMatrixSprite = MakeAftineMatrix(transformSprite.scale, transformSprite.rotate, transformSprite.translate);
+    /*Matrix4x4 worludMatrixSprite = MakeAftineMatrix(transformSprite.scale, transformSprite.rotate, transformSprite.translate);
     Matrix4x4 viewMatrixSprite = MakeIdentity4x4();
     Matrix4x4 projectionMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(WinApp::kClientWidth), float(WinApp::kClientHeight), 0.0f, 100.0f);
     Matrix4x4 worldViewProjectionMatrixSprite = Multiply(worludMatrixSprite, Multiply(viewMatrixSprite, projectionMatrixSprite));
     transformationMatrixDateSprite->World = worludMatrixSprite;
-    transformationMatrixDateSprite->WVP = worldViewProjectionMatrixSprite;
+    transformationMatrixDateSprite->WVP = worldViewProjectionMatrixSprite;*/
 
     /*----------------------------------------*/
     /*---------UVTransform用の行列を作る--------*/
@@ -570,19 +550,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     /*---------------------------------------------------*/
     /*-------------------2dの描画コマンド開始---------------*/
     /*---------------------------------------------------*/
-
-    // // Spriteの描画は常にuvCheckerにする
-    dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
-
-    dxCommon->GetCommandList()->IASetIndexBuffer(&indexBufferViewSprite);//IBVを設定
-    //// wvp用のCBufferの場所を設定
-    dxCommon->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);
-    //// Spriteの描画。変更が必要なものだけ変更する
-    dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResourceSprite->GetGPUVirtualAddress());
-    //// TransformationMatrixBufferの場所を設定
-    dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResourceSprite->GetGPUVirtualAddress());
-    //// 描画! (DrawCall/ドローコール) 6個のインデックスを使用し1つのインスタンスを描画、その他は当面０で良い
-    dxCommon->GetCommandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
+    sprite->Draw();
 
     /*---------------------------------------------------*/
     /*-------------------2dの描画コマンド終了---------------*/
