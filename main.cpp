@@ -216,10 +216,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   Sprite* sprite = new Sprite();
   sprite->Initialize(spriteCommon);
 
+  //複数枚描画
   std::vector<Sprite*> sprites;
+
   for (uint32_t i = 0; i < 5; i++) {
     Sprite* sprite = new Sprite();
     sprite->Initialize(spriteCommon);
+    // 各スプライトの位置を個別に設定
+    Vector2 initialPosition = { 100.0f * i, 0.0f * i }; // iに応じて位置をずらす
+    sprite->SetPosition(initialPosition);
+
     sprites.push_back(sprite);
   }
 
@@ -423,43 +429,38 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     if (input->TriggerKey(DIK_S)) {
       transform.translate.y -= 0.1f;
     }
-    //=========================================================//
-    // ===================== 移動テスト =========================//
-    // ========================================================//
-    // 現在の座標を変数で受ける
-    Vector2 position = sprite->GetPosition();
-    // 座標を変更する
-    position.x += 0.1f;
-    position.y += 0.1f;
-    //変更を反映する
-    sprite->SetPosition(position);
-    sprite->Update();
 
-    //=========================================================//
-    // ===================== 回転テスト =========================//
-    // ========================================================//
-    // 角度を変化させるテスト
-    float rotation = sprite->GetRotation();
-    //rotation += 0.01f;
-    sprite->SetRotation(rotation);
+    for (Sprite* sprite : sprites) {
+      // スプライトの位置を更新する例
+      Vector2 position = sprite->GetPosition();
+      position.x += 0.1f; // 少しずつ右に移動
+      sprite->SetPosition(position);
 
+      //// スプライトの回転を更新する
+      //float rotation = sprite->GetRotation();
+      //rotation += 0.01f; // 回転角度を少しずつ増加
+      //sprite->SetRotation(rotation);
     //========================================================//
     // ===================== 色を変えるテスト ===================//
     // =======================================================//
-    Vector4 color = sprite->GetColor();
-    color.x += 0.01f;
-    if (color.x > 1.0f) {
-      color.x -= 1.0f;
-    }
-    sprite->SetColor(color);
-    //========================================================//
-    // ===================== サイズ変更のテスト ===================//
-    // =======================================================//
-    Vector2 size = sprite->GetSize();
-    size.x += 0.5f;
-    size.y += 0.5f;
-    sprite->SetSize(size);
+      Vector4 color = sprite->GetColor();
+      color.x += 0.01f;
+      if (color.x > 1.0f) {
+        color.x -= 1.0f;
+      }
+      sprite->SetColor(color);
+      //========================================================//
+      // ===================== サイズ変更のテスト ===================//
+      // =======================================================//
+      Vector2 size = sprite->GetSize();
+      /*size.x += 0.5f;
+      size.y += 0.5f;*/
+      size = { 70.0f,70.0f };
+      sprite->SetSize(size);
 
+      // スプライトの更新
+      sprite->Update();
+    }
 
     //========================================//
     //================ ImGui =================//
@@ -473,19 +474,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     ImGui::ShowDemoWindow();
 
     ImGui::Begin("Sprite");
-    ImGui::DragFloat3("translate", &transform.translate.x, 0.01f);
-    ImGui::DragFloat3("translate", &position.x, 0.01f);
-    ImGui::SliderAngle("SphererRotateX", &transform.rotate.x);
-    ImGui::SliderAngle("SphererRotateY", &transform.rotate.y);
-    ImGui::SliderAngle("SphererRotateZ", &transform.rotate.z);
+    //ImGui::DragFloat3("translate", , 0.01f);
+    //ImGui::DragFloat3("translate", &position.x, 0.01f);
+    //ImGui::SliderAngle("SphererRotateX", &transform.rotate.x);
+    //ImGui::SliderAngle("SphererRotateY", &transform.rotate.y);
+    //ImGui::SliderAngle("SphererRotateZ", &transform.rotate.z);
     ImGui::ColorEdit3("colorSprite", reinterpret_cast<float*>(materialSpriteDate));
     ImGui::Checkbox("useMonsterBall", &useMonsterBall);
     ImGui::DragFloat3("LightDirection", &directionalLightDate->direction.x, 0.01f);
     ImGui::DragFloat("LightIntensity", &directionalLightDate->intensity, 0.01f);
-    ImGui::DragFloat3("SpriteTranslate", (&transformSprite.translate.x));
-    ImGui::DragFloat2("UVTranslate", &uvTransformSprite.translate.x, 0.01f, -10.0f, 10.0f);
-    ImGui::DragFloat2("UVScale", &uvTransformSprite.scale.x, 0.01f, -10.0f, 10.0f);
-    ImGui::SliderAngle("UVRotate", &uvTransformSprite.rotate.z);
+    //ImGui::DragFloat3("SpriteTranslate", (&transformSprite.translate.x));
+    //ImGui::DragFloat2("UVTranslate", &uvTransformSprite.translate.x, 0.01f, -10.0f, 10.0f);
+    //ImGui::DragFloat2("UVScale", &uvTransformSprite.scale.x, 0.01f, -10.0f, 10.0f);
+    //ImGui::SliderAngle("UVRotate", &uvTransformSprite.rotate.z);
     ImGui::End();
 
     ImGui::Render();
@@ -550,7 +551,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     /*---------------------------------------------------*/
     /*-------------------2dの描画コマンド開始---------------*/
     /*---------------------------------------------------*/
-    sprite->Draw();
+
+    for (Sprite* sprite : sprites) {
+      sprite->Draw();
+    }
+    //sprite->Draw();
 
     /*---------------------------------------------------*/
     /*-------------------2dの描画コマンド終了---------------*/
@@ -570,16 +575,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   ImGui_ImplDX12_Shutdown();
   ImGui_ImplWin32_Shutdown();
   ImGui::DestroyContext();
+  // スプライトの解放
+  for (Sprite* sprite : sprites) {
+    delete sprite;
+  }
+  delete sprite;
+  sprites.clear();
+  delete spriteCommon;
 
   //CloseHandle(fenceEvent);
   delete input;
 
   // WindowsAPI解放
   delete winApp;
-
-  delete sprite;
-  delete spriteCommon;
-
+  //delete sprite;
   // DirectX解放
   delete dxCommon;
 
