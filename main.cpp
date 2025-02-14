@@ -374,7 +374,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   assert(pixelShaderBlob != nullptr);
 
   //Transform変数を作る
-  Transform transform{ {1.0f,1.0f,1.0f},{3.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
+  Transform transform{ {1.0f,1.0f,1.0f},{0.0f,3.0f,0.0f},{0.0f,0.0f,0.0f} };
 
 
   Transform transformSprite{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
