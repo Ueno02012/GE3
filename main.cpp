@@ -62,15 +62,7 @@ bool DepthFunc(float currZ, float prevZ) {
 typedef void (*Callback)(int result);
 
 
-//Transform変数を作る
-Transform transform{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
 
-// 判定を行うコールバック関数
-void rotate_result(int result) {
-
-  transform.rotate.y += 0.1f;
-
-}
 
 
 /*----------------------------------------------------------------------*/
@@ -381,6 +373,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   Microsoft::WRL::ComPtr <IDxcBlob> pixelShaderBlob = dxCommon->CompileShader(L"resources/shaders/Object3D.PS.hlsl", L"ps_6_0");
   assert(pixelShaderBlob != nullptr);
 
+  //Transform変数を作る
+  Transform transform{ {1.0f,1.0f,1.0f},{3.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
 
 
   Transform transformSprite{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
@@ -427,9 +421,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     if (input->TriggerKey(DIK_S)) {
       transform.translate.y -= 0.1f;
     }
-    Callback callback = rotate_result;
 
-    callback(0);
 
     for (Sprite* sprite : sprites) {
       // スプライトの位置を更新する例
