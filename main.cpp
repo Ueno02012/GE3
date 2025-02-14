@@ -51,9 +51,6 @@ struct ModelDate {
   MaterialDate material;
 };
 
-
-
-
 bool DepthFunc(float currZ, float prevZ) {
   return currZ <= prevZ;
 }
