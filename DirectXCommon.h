@@ -24,7 +24,10 @@ public: // メンバ関数
   /// </summary>
   /// <param name="winApp">WindowsAPI</param>
   void Initialize(WinApp* winApp);
-
+  /// <summary>
+  /// 終了処理
+  /// </summary>
+  void Finalize();
 
   /// <summary>
   /// 描画前処理

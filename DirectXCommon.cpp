@@ -38,6 +38,16 @@ void DirectXCommon::Initialize(WinApp* winApp)
   ImGuiInitilize();// ImGuiの初期化
 }
 
+void DirectXCommon::Finalize()
+{
+  //ImGuiの終了処理。
+  ImGui_ImplDX12_Shutdown();
+  ImGui_ImplWin32_Shutdown();
+  ImGui::DestroyContext();
+  CloseHandle(fenceEvent);
+
+}
+
 ComPtr<IDxcBlob> DirectXCommon::CompileShader(const std::wstring& filePath, const wchar_t* profile)
 {
   //1.hlslファイルを読む

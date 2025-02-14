@@ -36,17 +36,6 @@
 #pragma comment(lib,"dxcompiler.lib")
 
 
-//struct TransformationMatrix {
-//  Matrix4x4 WVP;
-//  Matrix4x4 World;
-//};
-
-//struct Material {
-//  Vector4 color;
-//  int32_t endbleLighting;
-//  float padding[3];
-//  Matrix4x4 uvTransform;
-//};
 
 struct DirectionalLight {
   Vector4 color; //!< ライトの色
@@ -448,10 +437,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
       position.x += 0.1f; // 少しずつ右に移動
       sprite->SetPosition(position);
 
-      //// スプライトの回転を更新する
-      //float rotation = sprite->GetRotation();
-      //rotation += 0.01f; // 回転角度を少しずつ増加
-      //sprite->SetRotation(rotation);
     //========================================================//
     // ===================== 色を変えるテスト ===================//
     // =======================================================//
@@ -486,19 +471,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     ImGui::ShowDemoWindow();
 
     ImGui::Begin("Sprite");
-    //ImGui::DragFloat3("translate", , 0.01f);
-    //ImGui::DragFloat3("translate", &position.x, 0.01f);
-    //ImGui::SliderAngle("SphererRotateX", &transform.rotate.x);
-    //ImGui::SliderAngle("SphererRotateY", &transform.rotate.y);
-    //ImGui::SliderAngle("SphererRotateZ", &transform.rotate.z);
     ImGui::ColorEdit3("colorSprite", reinterpret_cast<float*>(materialSpriteDate));
     ImGui::Checkbox("useMonsterBall", &useMonsterBall);
     ImGui::DragFloat3("LightDirection", &directionalLightDate->direction.x, 0.01f);
     ImGui::DragFloat("LightIntensity", &directionalLightDate->intensity, 0.01f);
-    //ImGui::DragFloat3("SpriteTranslate", (&transformSprite.translate.x));
-    //ImGui::DragFloat2("UVTranslate", &uvTransformSprite.translate.x, 0.01f, -10.0f, 10.0f);
-    //ImGui::DragFloat2("UVScale", &uvTransformSprite.scale.x, 0.01f, -10.0f, 10.0f);
-    //ImGui::SliderAngle("UVRotate", &uvTransformSprite.rotate.z);
     ImGui::End();
 
     ImGui::Render();
@@ -515,16 +491,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     transformationMatrixData->World = worludMatrix;
     transformationMatrixData->WVP = worldViewProjectionMatrix;
 
-    /*-------------------------------------------*/
-    /*---Sprite用のWorldViewProjectionMatrixを作る---*/
-    /*--------------------------------------------*/
-
-    /*Matrix4x4 worludMatrixSprite = MakeAftineMatrix(transformSprite.scale, transformSprite.rotate, transformSprite.translate);
-    Matrix4x4 viewMatrixSprite = MakeIdentity4x4();
-    Matrix4x4 projectionMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(WinApp::kClientWidth), float(WinApp::kClientHeight), 0.0f, 100.0f);
-    Matrix4x4 worldViewProjectionMatrixSprite = Multiply(worludMatrixSprite, Multiply(viewMatrixSprite, projectionMatrixSprite));
-    transformationMatrixDateSprite->World = worludMatrixSprite;
-    transformationMatrixDateSprite->WVP = worldViewProjectionMatrixSprite;*/
 
     /*----------------------------------------*/
     /*---------UVTransform用の行列を作る--------*/
@@ -582,11 +548,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
   // windowsAPIの終了処理
   winApp->Finalize();
-
-  //ImGuiの終了処理。
-  ImGui_ImplDX12_Shutdown();
-  ImGui_ImplWin32_Shutdown();
-  ImGui::DestroyContext();
+  dxCommon->Finalize();
   // スプライトの解放
   for (Sprite* sprite : sprites) {
     delete sprite;
@@ -595,12 +557,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   sprites.clear();
   delete spriteCommon;
 
-  //CloseHandle(fenceEvent);
   delete input;
 
   // WindowsAPI解放
   delete winApp;
-  //delete sprite;
   // DirectX解放
   delete dxCommon;
 
